@@ -1,0 +1,617 @@
+
+<header class="site-header">
+    <div class="container header-inner">
+        <div class="brand">
+            <img src="assets/logo.png" alt="NewGen Study Agency">
+        </div>
+
+        <nav class="navigation">
+            @for (tab of tabs; track tab.id) {
+                <button
+                        type="button"
+                        [class.active]="activeTab === tab.id"
+                        (click)="changeTab(tab.id)">
+                    {{ tab.name }}
+                </button>
+            }
+        </nav>
+    </div>
+</header>
+
+<main>
+    @switch (activeTab) {
+
+        <!-- ГОЛОВНА -->
+        @case ('home') {
+            <section class="hero">
+                <div class="container hero-grid">
+                    <div class="hero-content">
+                        <span class="eyebrow">NEWGEN STUDY AGENCY</span>
+
+                        <h1>Твій шлях до<em>навчання у Словаччині.</em></h1>
+                        <p>
+                            NewGen Study допомагає вступати до
+                            європейських університетів — від підбору
+                            навчального закладу до супроводу після зарахування.
+                        </p>
+
+                        <div class="hero-actions">
+                            <span class="button button-gold">Підібрати університет</span>
+                            <span class="button button-outline">Наші послуги</span>
+                        </div>
+                    </div>
+
+                    <div class="hero-image">
+                        <img
+                                src="assets/slovakAndUkr.jpg"
+                                alt="Прапори">
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-light">
+                <div class="container two-columns">
+                    <div>
+                        <span class="section-label">01 / ПРО КОМПАНІЮ</span>
+                        <h2>
+                            Навчання за кордоном
+                            <em>починається з вибору.</em>
+                        </h2>
+                    </div>
+
+                    <div class="large-description">
+                        <p>
+                            NewGen Study — компанія, яка допомагає
+                            вступати до університетів Словаччини.
+                        </p>
+                        <p>
+                            Супровід охоплює підбір університету,
+                            підготовку та переклад документів,
+                            подачу заявок, комунікацію з університетом
+                            і допомогу студентам після вступу.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-dark">
+                <div class="container">
+                    <div class="section-heading">
+                        <span class="section-label">02 / УНІВЕРСИТЕТИ</span>
+                        <h2>Університети <em>Словаччини.</em></h2>
+                        <p>Навчальні заклади, представлені NewGen Study.</p>
+                    </div>
+
+                    <div class="universities-grid">
+                        @for (uni of universities.slice(0, 3); track uni.name) {
+                            <article class="university-card">
+                                <div class="university-image">
+                                    <img [src]="uni.image" [alt]="uni.name">
+                                </div>
+
+                                <div class="university-info">
+                                    <span>{{ uni.city }}</span>
+                                    <h3>{{ uni.name }}</h3>
+                                    <p>Університет Словаччини</p>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-light">
+                <div class="container">
+                    <span class="section-label">03 / ПРОЦЕС ВСТУПУ</span>
+                    <h2>Від першої консультації <em>до зарахування.</em></h2>
+
+                    <div class="steps-grid">
+                        @for (step of steps; track step.title; let i = $index) {
+                            <article class="step-card">
+                <span class="step-number">
+                  {{ i + 1 < 10 ? '0' : '' }}{{ i + 1 }}
+                </span>
+                                <h3>{{ step.title }}</h3>
+                                <p>{{ step.description }}</p>
+                            </article>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-dark">
+                <div class="container">
+                    <div class="section-heading">
+                        <span class="section-label">04 / ПАКЕТИ ПОСЛУГ</span>
+                        <h2>Обери свій <em>формат супроводу.</em></h2>
+                    </div>
+
+                    <div class="pricing-grid">
+                        @for (pack of packages; track pack.name) {
+                            <article class="price-card" [class.featured]="pack.featured">
+                                <span class="price-tag">NEWGEN STUDY</span>
+                                <h3>{{ pack.name }}</h3>
+                                <div class="price">{{ pack.price }} €</div>
+                                <p>
+                                    Оплата {{ pack.applications }}
+                                    {{ pack.applications === 1 ? 'заявки' : 'заявок' }}
+                                    в університет
+                                </p>
+                                <span class="price-button">Детальніше</span>
+                            </article>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-light">
+                <div class="container contact-layout">
+                    <div>
+                        <span class="section-label">05 / БЕЗКОШТОВНА КОНСУЛЬТАЦІЯ</span>
+                        <h2>Почни свій шлях <em>до вступу.</em></h2>
+                        <p>
+                            Залиш заявку для консультації щодо вступу.
+                        </p>
+                    </div>
+
+                    <div class="contact-form">
+                        <h3>Залишити заявку</h3>
+                        <input placeholder="Ваше ім'я" disabled>
+                        <input placeholder="Номер телефону" disabled>
+                        <input placeholder="Email" disabled>
+                        <div class="button button-gold">Надіслати заявку</div>
+                    </div>
+                </div>
+            </section>
+        }
+
+        <!-- ПРО КОМПАНІЮ -->
+        @case ('about') {
+            <section class="page-hero">
+                <div class="container">
+                    <span class="eyebrow">NEWGEN STUDY AGENCY</span>
+                    <h1>Про <em>NewGen Study.</em></h1>
+                    <p>
+                        Допомога абітурієнтам зі вступом до університетів Словаччини.
+                    </p>
+                </div>
+            </section>
+
+            <section class="section section-light">
+                <div class="container two-columns">
+                    <div>
+                        <span class="section-label">01 / ПРО КОМПАНІЮ</span>
+                        <h2>Допомога зі вступом <em>на кожному етапі.</em></h2>
+                    </div>
+                    <div class="large-description">
+                        <p>
+                            NewGen Study допомагає абітурієнтам обрати університет,
+                            підготувати необхідні документи та пройти процес вступу.
+                        </p>
+                        <p>
+                            Компанія займається комунікацією з університетами,
+                            реєстрацією на онлайн-іспити за необхідності,
+                            допомогою з гуртожитком.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-dark">
+                <div class="container">
+                    <span class="section-label">02 / НАПРЯМИ ДОПОМОГИ</span>
+                    <h2>Що входить <em>у супровід?</em></h2>
+
+                    <div class="steps-grid">
+                        <article class="step-card">
+                            <span class="step-number">01</span>
+                            <h3>До вступу</h3>
+                            <p>
+                                Підбір університету, переклади документів,
+                                мотиваційний лист, біографія словацькою мовою.
+                            </p>
+                        </article>
+
+                        <article class="step-card">
+                            <span class="step-number">02</span>
+                            <h3>Під час вступу</h3>
+                            <p>
+                                Подача заявок, комунікація з університетом,
+                                онлайн-іспити та отримання листа про зарахування.
+                            </p>
+                        </article>
+
+                        <article class="step-card">
+                            <span class="step-number">03</span>
+                            <h3>Після зарахування</h3>
+                            <p>
+                                Гуртожиток, студентський кабінет та додаткові послуги
+                                залежно від пакета.
+                            </p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-light">
+                <div class="container">
+                    <span class="section-label">03 / ЕТАПИ СПІВПРАЦІ</span>
+                    <h2>Процес <em>вступу.</em></h2>
+
+                    <div class="steps-grid">
+                        @for (step of steps; track step.title; let i = $index) {
+                            <article class="step-card">
+                                <span class="step-number">0{{ i + 1 }}</span>
+                                <h3>{{ step.title }}</h3>
+                                <p>{{ step.description }}</p>
+                            </article>
+                        }
+                    </div>
+                </div>
+            </section>
+        }
+
+        <!-- УНІВЕРСИТЕТИ -->
+        @case ('universities') {
+            <section class="page-hero">
+                <div class="container">
+                    <span class="eyebrow">ОСВІТА У СЛОВАЧЧИНІ</span>
+                    <h1>Знайди свій <em>університет.</em></h1>
+                    <p>
+                        Університети Словаччини, представлені в матеріалах NewGen Study.
+                    </p>
+                </div>
+            </section>
+
+            <section class="section section-light">
+                <div class="container">
+                    <div class="section-heading">
+                        <span class="section-label">01 / КАТАЛОГ</span>
+                        <h2>Університети <em>Словаччини.</em></h2>
+                        <p>Кошице · Братислава · Жиліна</p>
+                    </div>
+
+                    <div class="universities-grid">
+                        @for (uni of universities; track uni.name) {
+                            <article class="university-card">
+                                <div class="university-image">
+                                    <img [src]="uni.image" [alt]="uni.name" loading="lazy">
+                                </div>
+
+                                <div class="university-info">
+                                    <span>{{ uni.city }}</span>
+                                    <h3>{{ uni.name }}</h3>
+                                    <p>Університет Словаччини</p>
+                                    <div class="card-link">Детальніше ↗</div>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-dark">
+                <div class="container">
+                    <span class="section-label">02 / НАПРЯМИ НАВЧАННЯ</span>
+                    <h2>Який напрям <em>тобі цікавий?</em></h2>
+
+                    <div class="directions-grid">
+                        <div>IT та інформатика</div>
+                        <div>Економіка та менеджмент</div>
+                        <div>Авіація та транспорт</div>
+                        <div>Біологія</div>
+                        <div>Педагогіка</div>
+                        <div>Гуманітарні напрями</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-light">
+                <div class="container two-columns">
+                    <div>
+                        <span class="section-label">03 / ПІДБІР УНІВЕРСИТЕТУ</span>
+                        <h2>Допоможемо <em>з вибором.</em></h2>
+                    </div>
+                    <div class="large-description">
+                        <p>
+                            Підбір університету входить до кожного з трьох
+                            пакетів NewGen Study.
+                        </p>
+                        <p>
+                            Після вибору університету компанія допомагає
+                            підготувати необхідні документи та подати заявку.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        }
+
+        <!-- ПОСЛУГИ -->
+        @case ('pricing') {
+            <section class="page-hero">
+                <div class="container">
+                    <span class="eyebrow">NEWGEN STUDY / SERVICES</span>
+                    <h1>Наші <em>послуги.</em></h1>
+                    <p>Три пакети супроводу для вступу до університетів Словаччини.</p>
+                </div>
+            </section>
+
+            <section class="section section-light">
+                <div class="container">
+                    <div class="section-heading">
+                        <span class="section-label">01 / ПАКЕТИ</span>
+                        <h2>Обери свій <em>пакет.</em></h2>
+                    </div>
+
+                    <div class="pricing-grid full-pricing">
+                        @for (pack of packages; track pack.name; let pi = $index) {
+                            <article class="price-card" [class.featured]="pack.featured">
+                                <span class="price-tag">0{{ pi + 1 }} / NEWGEN</span>
+
+                                <h3>{{ pack.name }}</h3>
+                                <div class="price">{{ pack.price }} €</div>
+
+                                <p>
+                                    Оплата {{ pack.applications }}
+                                    {{ pack.applications === 1 ? 'заявки' : 'заявок' }}
+                                    до університету
+                                </p>
+
+                                <div class="price-divider"></div>
+
+                                <ul class="service-list">
+                                    @for (service of services; track service; let si = $index) {
+                                        @if (hasService(si, pi)) {
+                                            <li>
+                                                <span class="check">✓</span>
+                                                {{ service }}
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+
+                                <span class="price-button">Обрати пакет</span>
+                            </article>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-dark">
+                <div class="container">
+                    <span class="section-label">02 / ПОРІВНЯННЯ</span>
+                    <h2>Порівняння <em>послуг.</em></h2>
+
+                    <div class="table-wrapper">
+                        <table class="comparison-table">
+                            <thead>
+                            <tr>
+                                <th>Послуга</th>
+                                @for (pack of packages; track pack.name) {
+                                    <th>
+                                        {{ pack.name }}
+                                        <small>{{ pack.price }} €</small>
+                                    </th>
+                                }
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                                @for (service of services; track service; let si = $index) {
+                                    <tr>
+                                        <td>{{ service }}</td>
+                                        @for (pack of packages; track pack.name; let pi = $index) {
+                                            <td>
+                                                @if (hasService(si, pi)) {
+                                                    <span class="table-check">✓</span>
+                                                } @else {
+                                                    <span class="table-empty">—</span>
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+
+                            <tr>
+                                <td>Оплата заявок до університету</td>
+                                @for (pack of packages; track pack.name) {
+                                    <td>{{ pack.applications }}</td>
+                                }
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        }
+
+        <!-- ВІДГУКИ -->
+        @case ('reviews') {
+            <section class="page-hero">
+                <div class="container">
+                    <span class="eyebrow">NEWGEN STUDY / REVIEWS</span>
+                    <h1>Відгуки <em>студентів.</em></h1>
+                    <p>Місце для відгуків студентів NewGen Study.</p>
+                </div>
+            </section>
+
+            <section class="section section-light">
+                <div class="container">
+                    <span class="section-label">01 / ВІДГУКИ</span>
+                    <h2>Історії <em>студентів.</em></h2>
+
+                    <div class="reviews-grid">
+                        <article class="review-card">
+                            <span class="review-index">01 / ВІДГУК</span>
+                            <div class="quote-icon">“</div>
+                            <p>Місце для текстового відгуку студента.</p>
+                            <div class="review-footer">NEWGEN STUDY</div>
+                        </article>
+
+                        <article class="review-card">
+                            <span class="review-index">02 / ВІДГУК</span>
+                            <div class="quote-icon">“</div>
+                            <p>Місце для текстового або відеовідгуку.</p>
+                            <div class="review-footer">NEWGEN STUDY</div>
+                        </article>
+
+                        <article class="review-card">
+                            <span class="review-index">03 / ВІДГУК</span>
+                            <div class="quote-icon">“</div>
+                            <p>Місце для ще одного реального відгуку.</p>
+                            <div class="review-footer">NEWGEN STUDY</div>
+                        </article>
+                    </div>
+
+                    <p class="section-note">
+                        Справжні відгуки, фотографії та імена будуть додані
+                        після надання матеріалів компанією.
+                    </p>
+                </div>
+            </section>
+        }
+
+        <!-- КОНТАКТИ -->
+        @case ('contact') {
+            <section class="page-hero">
+                <div class="container">
+                    <span class="eyebrow">NEWGEN STUDY / CONTACT</span>
+                    <h1>Зв'яжися <em>з нами.</em></h1>
+                    <p>Консультація щодо вступу до університетів Словаччини.</p>
+                </div>
+            </section>
+
+            <section class="section section-light">
+                <div class="container contact-layout">
+                    <div>
+                        <span class="section-label">01 / КОНСУЛЬТАЦІЯ</span>
+                        <h2>Залиш <em>заявку.</em></h2>
+
+                        <p class="large-description">
+                            NewGen Study допомагає з підбором університету,
+                            підготовкою документів і супроводом вступу.
+                        </p>
+                    </div>
+
+                    <div class="contact-form">
+                        <h3>Заявка на консультацію</h3>
+                        <p>Заповнення та відправлення буде підключено пізніше.</p>
+
+                        <label>Ім'я</label>
+                        <input placeholder="Ваше ім'я" disabled>
+
+                        <label>Номер телефону</label>
+                        <input placeholder="+380..." disabled>
+
+                        <label>Email</label>
+                        <input placeholder="email@example.com" disabled>
+
+                        <label>Послуга</label>
+                        <select disabled>
+                            <option>Підбір університету</option>
+                            <option>Економ</option>
+                            <option>Комфорт</option>
+                            <option>Преміум</option>
+                        </select>
+
+                        <div class="form-consent">
+                            ○ Погоджуюся на обробку персональних даних
+                        </div>
+
+                        <div class="button button-gold">Надіслати заявку ↗</div>
+
+                        <small>Демонстраційна форма. Дані не надсилаються.</small>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section section-dark">
+                <div class="container">
+                    <span class="section-label">02 / ПОСЛУГИ</span>
+                    <h2>Чим ми <em>допомагаємо?</em></h2>
+
+                    <div class="steps-grid">
+                        <article class="step-card">
+                            <span class="step-number">01</span>
+                            <h3>Університети</h3>
+                            <p>Підбір навчального закладу.</p>
+                        </article>
+
+                        <article class="step-card">
+                            <span class="step-number">02</span>
+                            <h3>Документи</h3>
+                            <p>Переклад, підготовка й подача документів.</p>
+                        </article>
+
+                        <article class="step-card">
+                            <span class="step-number">03</span>
+                            <h3>Супровід</h3>
+                            <p>Допомога під час вступу та після зарахування.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+        }
+    }
+</main>
+
+
+<footer class="site-footer">
+    <div class="container footer-main">
+
+        <!-- Логотип та опис компанії -->
+        <div class="footer-brand">
+            <img src="assets/logo.png" alt="NewGen Study Agency">
+
+            <div class="footer-description">
+                <h3>NewGen Study Agency</h3>
+                <p>
+                    Допомога українцям зі вступом
+                    до університетів Словаччини.
+                </p>
+                <span>Підбір університету · Документи · Супровід</span>
+            </div>
+        </div>
+
+        <!-- Контакти і соціальні мережі -->
+        <div class="footer-contacts">
+            <h3>Зв'язатися з нами</h3>
+
+            <div class="footer-socials">
+
+                <!-- Телефон -->
+                <a href="tel:+380XXXXXXXXX" aria-label="Телефон">
+                    <i class="bi bi-telephone-fill"></i>
+                </a>
+
+                <!-- Email -->
+                <a href="mailto:your@email.com" aria-label="Email">
+                    <i class="bi bi-envelope-fill"></i>
+                </a>
+
+                <!-- Instagram -->
+                <a href="#" aria-label="Instagram">
+                    <i class="bi bi-instagram"></i>
+                </a>
+
+                <!-- TikTok -->
+                <a href="#" aria-label="TikTok">
+                    <i class="bi bi-tiktok"></i>
+                </a>
+
+                <!-- Telegram -->
+                <a href="#" aria-label="Telegram">
+                    <i class="bi bi-telegram"></i>
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Нижня частина -->
+    <div class="container footer-bottom">
+        <span>© 2026 NewGen Study Agency. Усі права захищені.</span>
+        <span>Навчання у Словаччині</span>
+    </div>
+</footer>
