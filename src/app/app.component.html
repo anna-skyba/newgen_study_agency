@@ -1,129 +1,187 @@
+
+<!-- =====================================
+     HEADER
+===================================== -->
+
 <header class="site-header">
     <div class="container header-inner">
-        <div class="brand">
+
+        <button
+                class="brand"
+                type="button"
+                aria-label="NewGen Study"
+                (click)="changeTab('home')">
+
             <img src="assets/logo.png" alt="NewGen Study Agency">
-        </div>
-        <nav class="navigation" aria-label="Головна навігація">
+
+        </button>
+
+        <nav class="navigation" aria-label="Навігація">
+
             @for (tab of tabs; track tab.id) {
                 <button
                         type="button"
                         [class.active]="activeTab === tab.id"
                         (click)="changeTab(tab.id)">
-                    {{ tab.name }}
+                    {{ l(tab.name) }}
                 </button>
             }
+
         </nav>
+
+        <div class="language-switch">
+
+            <button
+                    type="button"
+                    [class.active]="language === 'uk'"
+                    (click)="setLanguage('uk')">
+                УКР
+            </button>
+
+            <button
+                    type="button"
+                    [class.active]="language === 'ru'"
+                    (click)="setLanguage('ru')">
+                РУС
+            </button>
+
+        </div>
+
     </div>
 </header>
+
+
+<!-- =====================================
+     PAGE HERO
+===================================== -->
+
+@if (activeTab !== 'home') {
+
+    <section class="page-hero">
+        <div class="container page-hero-content">
+
+      <span class="eyebrow">
+        {{ pageHeaders[activeTab].eyebrow }}
+      </span>
+
+            <h1>
+                {{ l(pageHeaders[activeTab].title) }}
+                <em>{{ l(pageHeaders[activeTab].accent) }}</em>
+            </h1>
+
+            <p>{{ l(pageHeaders[activeTab].description) }}</p>
+
+        </div>
+    </section>
+
+}
+
 
 <main>
     @switch (activeTab) {
 
-        <!-- ==================== ГОЛОВНА ==================== -->
+        <!-- =================================
+             HOME
+        ================================= -->
 
         @case ('home') {
 
             <section class="hero">
-                <div class="container hero-grid">
+                <div class="container hero-inner">
 
-                    <div class="hero-content">
-                        <span class="eyebrow">NEWGEN STUDY AGENCY</span>
+          <span class="eyebrow">
+            {{ pageHeaders.home.eyebrow }}
+          </span>
 
-                        <h1>
-                            Твій шлях до
-                            <em>навчання у Словаччині.</em>
-                        </h1>
+                    <h1>
+                        {{ l(pageHeaders.home.title) }}
+                        <em>{{ l(pageHeaders.home.accent) }}</em>
+                    </h1>
 
-                        <p>
-                            NewGen Study допомагає вступати до
-                            університетів Словаччини — від підбору
-                            навчального закладу до супроводу після зарахування.
-                        </p>
+                    <p>{{ l(pageHeaders.home.description) }}</p>
 
-                        <div class="hero-actions">
-              <span class="button button-gold">
-                Підібрати університет
-              </span>
+                    <div class="hero-actions">
 
-                            <span class="button button-outline">
-                Наші послуги
-              </span>
-                        </div>
-                    </div>
+                        <button
+                                type="button"
+                                class="button button-gold"
+                                (click)="changeTab('universities')">
+                            {{ t('viewUniversities') }}
+                        </button>
 
-                    <div class="hero-image">
-                        <img
-                                src="assets/slovakAndUkr.jpg"
-                                alt="Україна та Словаччина">
+                        <button
+                                type="button"
+                                class="button button-outline"
+                                (click)="changeTab('pricing')">
+                            {{ t('ourPackages') }}
+                        </button>
+
                     </div>
 
                 </div>
             </section>
 
-            <!-- Про компанію -->
 
-            <section class="section section-light">
+            <!-- ABOUT -->
+
+            <section class="section">
                 <div class="container two-columns">
 
                     <div>
-                        <span class="section-label">01 / ПРО КОМПАНІЮ</span>
+            <span class="section-label">
+              01 / NEWGEN STUDY
+            </span>
 
                         <h2>
-                            Навчання за кордоном
-                            <em>починається з вибору.</em>
+                            {{ t('aboutTitle') }}
+                            <em>{{ t('aboutGold') }}</em>
                         </h2>
                     </div>
 
                     <div class="large-description">
-                        <p>
-                            NewGen Study — компанія, яка допомагає
-                            вступати до університетів Словаччини.
-                        </p>
-
-                        <p>
-                            Супровід охоплює підбір університету,
-                            підготовку та переклад документів,
-                            подачу заявок, комунікацію з університетом
-                            і допомогу студентам після вступу.
-                        </p>
+                        <p>{{ t('aboutDescription1') }}</p>
+                        <p>{{ t('aboutDescription2') }}</p>
                     </div>
 
                 </div>
             </section>
 
-            <!-- Університети на головній БЕЗ ПОШУКУ -->
 
-            <section class="section section-dark">
+            <!-- BENEFITS -->
+
+            <section class="section education-benefits">
                 <div class="container">
 
                     <div class="section-heading">
-                        <span class="section-label">02 / УНІВЕРСИТЕТИ</span>
+            <span class="section-label">
+              02 / {{ t('benefitsLabel') }}
+            </span>
 
                         <h2>
-                            Університети <em>Словаччини.</em>
+                            {{ t('benefitsTitle') }}
+                            <em>{{ t('benefitsGold') }}</em>
                         </h2>
 
-                        <p>Навчальні заклади, представлені NewGen Study.</p>
+                        <p>{{ t('benefitsDescription') }}</p>
                     </div>
 
-                    <div class="universities-grid">
+                    <div class="education-benefits-grid">
 
-                        @for (uni of universities.slice(0, 3); track uni.name) {
+                        @for (benefit of benefits; track $index; let i = $index) {
+                            <article class="education-benefit-card">
 
-                            <article class="university-card">
+                <span class="education-number">
+                  0{{ i + 1 }}
+                </span>
 
-                                <div class="university-image">
-                                    <img [src]="uni.image" [alt]="uni.name">
+                                <div class="education-icon">
+                                    <i [class]="benefit.icon"></i>
                                 </div>
 
-                                <div class="university-info">
-                                    <span>{{ uni.city }}</span>
-                                    <h3>{{ uni.name }}</h3>
-                                    <p>Університет Словаччини</p>
-                                </div>
+                                <h3>{{ l(benefit.title) }}</h3>
+                                <p>{{ l(benefit.description) }}</p>
 
                             </article>
-
                         }
 
                     </div>
@@ -131,98 +189,330 @@
                 </div>
             </section>
 
-            <!-- Процес вступу -->
 
-            <section class="section section-light">
+            <!-- WHY NEWGEN -->
+
+            <section class="section">
                 <div class="container">
 
-                    <span class="section-label">03 / ПРОЦЕС ВСТУПУ</span>
+                    <div class="section-heading why-heading">
+            <span class="section-label">
+              03 / NEWGEN STUDY
+            </span>
+
+                        <h2>
+                            {{ t('whyTitle') }}
+                            <em>{{ t('whyGold') }}</em>
+                        </h2>
+                    </div>
+
+                    <div class="trust-grid">
+
+                        @for (reason of trustReasons; track $index; let i = $index) {
+                            <article class="trust-card">
+
+                <span class="trust-number">
+                  0{{ i + 1 }}
+                </span>
+
+                                <div>
+                                    <h3>{{ l(reason.title) }}</h3>
+                                    <p>{{ l(reason.description) }}</p>
+                                </div>
+
+                                <span class="trust-check">
+                  <i class="bi bi-check-lg"></i>
+                </span>
+
+                            </article>
+                        }
+
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- GUARANTEE -->
+
+            <section class="section guarantee-section">
+                <div class="container">
+
+                    <div class="guarantee-panel">
+
+                        <div class="guarantee-content">
+
+              <span class="section-label">
+                04 / {{ t('guaranteeLabel') }}
+              </span>
+
+                            <h2>
+                                {{ t('guaranteeTitle') }}
+                                <em>{{ t('guaranteeGold') }}</em>
+                            </h2>
+
+                            <p>{{ t('guaranteeDescription') }}</p>
+
+                            <button
+                                    type="button"
+                                    class="button button-gold"
+                                    (click)="changeTab('pricing')">
+                                {{ t('ourPackages') }}
+                            </button>
+
+                        </div>
+
+                        <div class="guarantee-highlight">
+
+                            <div class="guarantee-percentage">
+                                100%
+                            </div>
+
+                            <h3>{{ t('guaranteeHighlight') }}</h3>
+
+                            <div class="guarantee-divider"></div>
+
+                            <p>{{ t('guaranteeNote') }}</p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- UNIVERSITIES PREVIEW -->
+
+            <section class="section">
+                <div class="container">
+
+                    <div class="section-heading">
+            <span class="section-label">
+              05 / NEWGEN UNIVERSITIES
+            </span>
+
+                        <h2>
+                            {{ t('universitiesTitle') }}
+                            <em>{{ t('universitiesGold') }}</em>
+                        </h2>
+
+                        <p>{{ t('universitiesDescription') }}</p>
+                    </div>
+
+                    <div class="home-universities-grid">
+
+                        @for (uni of universities.slice(0, 3); track uni.name; let i = $index) {
+                            <article class="home-university-card">
+
+                <span class="card-number">
+                  0{{ i + 1 }}
+                </span>
+
+                                <span class="city-label">
+                  <i class="bi bi-geo-alt"></i>
+                                    {{ l(uni.city) }}
+                </span>
+
+                                <h3>{{ uni.name }}</h3>
+
+                                <p>{{ t('universityCaption') }}</p>
+
+                            </article>
+                        }
+
+                    </div>
+
+                    <div class="section-action">
+                        <button
+                                type="button"
+                                class="button button-gold"
+                                (click)="changeTab('universities')">
+                            {{ t('viewUniversities') }}
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- STEPS -->
+
+            <section class="section">
+                <div class="container">
+
+          <span class="section-label">
+            06 / NEWGEN PROCESS
+          </span>
 
                     <h2>
-                        Від першої консультації
-                        <em>до зарахування.</em>
+                        {{ t('stepsTitle') }}
+                        <em>{{ t('stepsGold') }}</em>
                     </h2>
 
-                    <div class="steps-grid">
-                        @for (step of steps; track step.title; let i = $index) {
+                    <div class="steps-grid compact-steps">
+
+                        @for (step of steps; track $index; let i = $index) {
                             <article class="step-card">
-                                <span class="step-number">{{ i + 1 < 10 ? '0' : '' }}{{ i + 1 }}</span>
-                                <h3>{{ step.title }}</h3>
-                                <p>{{ step.description }}</p>
+
+                <span class="card-number">
+                  0{{ i + 1 }}
+                </span>
+
+                                <h3>{{ l(step.title) }}</h3>
+                                <p>{{ l(step.description) }}</p>
+
                             </article>
                         }
+
                     </div>
+
                 </div>
             </section>
 
-            <!-- Пакети -->
 
-            <section class="section section-dark">
+            <!-- PACKAGES PREVIEW -->
+
+            <section class="section">
                 <div class="container">
 
-                    <div class="section-heading">
-                        <span class="section-label">04 / ПАКЕТИ ПОСЛУГ</span>
+          <span class="section-label">
+            07 / NEWGEN SERVICES
+          </span>
 
-                        <h2>
-                            Обери свій <em>формат супроводу.</em>
-                        </h2>
-                    </div>
+                    <h2>
+                        {{ t('pricingTitle') }}
+                        <em>{{ t('pricingGold') }}</em>
+                    </h2>
 
-                    <div class="pricing-grid">
+                    <div class="pricing-grid pricing-preview">
 
-                        @for (pack of packages; track pack.name) {
-
+                        @for (pack of packages; track pack.price) {
                             <article
                                     class="price-card"
                                     [class.featured]="pack.featured">
 
                                 <span class="price-tag">NEWGEN STUDY</span>
 
-                                <h3>{{ pack.name }}</h3>
+                                <h3>{{ l(pack.name) }}</h3>
 
                                 <div class="price">
                                     {{ pack.price }} €
                                 </div>
 
-                                <p>
-                                    Оплата {{ pack.applications }}
-                                    {{ pack.applications === 1 ? 'заявки' : 'заявок' }}
-                                    в університет
+                                <p class="price-description">
+                                    {{ t(
+                                    pack.applications === 1
+                                        ? 'applicationsOne'
+                                        : 'applicationsTwo'
+                                ) }}
                                 </p>
-                                <span class="price-button">Детальніше</span>
+
+                                <button
+                                        type="button"
+                                        class="price-button"
+                                        (click)="changeTab('pricing')">
+                                    {{ t('details') }}
+                                </button>
+
                             </article>
                         }
+
                     </div>
+
                 </div>
             </section>
 
-            <!-- Консультація -->
 
-            <section class="section section-light">
+            <!-- FAQ -->
+
+            <section class="section faq-section">
+                <div class="container faq-layout">
+
+                    <div class="faq-intro">
+                        <span class="section-label">08 / FAQ</span>
+
+                        <h2>
+                            {{ t('faqTitle') }}
+                            <em>{{ t('faqGold') }}</em>
+                        </h2>
+
+                        <p class="lead-copy">
+                            {{ t('faqDescription') }}
+                        </p>
+                    </div>
+
+                    <div class="faq-list">
+
+                        @for (faq of faqItems; track $index; let i = $index) {
+                            <details class="faq-item">
+
+                                <summary>
+                  <span class="faq-index">
+                    0{{ i + 1 }}
+                  </span>
+
+                                    <span class="faq-question">
+                    {{ l(faq.question) }}
+                  </span>
+
+                                    <span class="faq-toggle">
+                    <i class="bi bi-plus-lg"></i>
+                  </span>
+                                </summary>
+
+                                <div class="faq-answer">
+                                    <p>{{ l(faq.answer) }}</p>
+                                </div>
+
+                            </details>
+                        }
+
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- CONTACT PREVIEW -->
+
+            <section class="section">
                 <div class="container contact-layout">
 
                     <div>
-            <span class="section-label">
-              05 / БЕЗКОШТОВНА КОНСУЛЬТАЦІЯ
-            </span>
+                        <span class="section-label">09 / CONTACT</span>
 
                         <h2>
-                            Почни свій шлях <em>до вступу.</em>
+                            {{ t('consultationTitle') }}
+                            <em>{{ t('consultationGold') }}</em>
                         </h2>
 
-                        <p>Залиш заявку для консультації щодо вступу.</p>
+                        <p class="lead-copy">
+                            {{ t('consultationDescription') }}
+                        </p>
                     </div>
 
                     <div class="contact-form">
-                        <h3>Залишити заявку</h3>
+                        <h3>{{ t('consultationTitle') }}</h3>
 
-                        <input placeholder="Ваше ім'я" disabled>
-                        <input placeholder="Номер телефону" disabled>
-                        <input placeholder="Email" disabled>
+                        <input
+                                [placeholder]="t('name')"
+                                [attr.aria-label]="t('name')"
+                                disabled>
 
-                        <div class="button button-gold">
-                            Надіслати заявку
-                        </div>
+                        <input
+                                [placeholder]="t('phone')"
+                                [attr.aria-label]="t('phone')"
+                                disabled>
+
+                        <input placeholder="Email" aria-label="Email" disabled>
+
+                        <button
+                                type="button"
+                                class="button button-gold"
+                                disabled>
+                            {{ t('send') }}
+                        </button>
                     </div>
 
                 </div>
@@ -230,117 +520,88 @@
         }
 
 
-        <!-- ==================== ПРО НАС ==================== -->
+        <!-- =================================
+             ABOUT
+        ================================= -->
 
         @case ('about') {
 
-            <section class="page-hero">
-                <div class="container">
-
-                    <span class="eyebrow">NEWGEN STUDY AGENCY</span>
-
-                    <h1>Про <em>NewGen Study.</em></h1>
-
-                    <p>
-                        Допомога абітурієнтам зі вступом
-                        до університетів Словаччини.
-                    </p>
-
-                </div>
-            </section>
-
-            <section class="section section-light">
+            <section class="section">
                 <div class="container two-columns">
 
                     <div>
-                        <span class="section-label">01 / ПРО КОМПАНІЮ</span>
+            <span class="section-label">
+              01 / NEWGEN STUDY
+            </span>
 
                         <h2>
-                            Допомога зі вступом
-                            <em>на кожному етапі.</em>
+                            {{ t('aboutTitle') }}
+                            <em>{{ t('aboutGold') }}</em>
                         </h2>
                     </div>
 
                     <div class="large-description">
-                        <p>
-                            NewGen Study допомагає абітурієнтам обрати університет,
-                            підготувати необхідні документи та пройти процес вступу.
-                        </p>
-
-                        <p>
-                            Компанія займається комунікацією з університетами,
-                            реєстрацією на онлайн-іспити за необхідності,
-                            допомогою з гуртожитком.
-                        </p>
+                        <p>{{ t('aboutDescription1') }}</p>
+                        <p>{{ t('aboutDescription2') }}</p>
                     </div>
 
                 </div>
             </section>
 
-            <section class="section section-dark">
+            <section class="section">
                 <div class="container">
 
-                    <span class="section-label">02 / НАПРЯМИ ДОПОМОГИ</span>
+          <span class="section-label">
+            02 / NEWGEN SUPPORT
+          </span>
 
-                    <h2>Що входить <em>у супровід?</em></h2>
+                    <h2>
+                        {{ t('whyTitle') }}
+                        <em>{{ t('whyGold') }}</em>
+                    </h2>
 
-                    <div class="steps-grid">
+                    <div class="trust-grid">
 
-                        <article class="step-card">
-                            <span class="step-number">01</span>
-                            <h3>До вступу</h3>
+                        @for (reason of trustReasons; track $index; let i = $index) {
+                            <article class="trust-card">
+                                <span class="trust-number">0{{ i + 1 }}</span>
 
-                            <p>
-                                Підбір університету, переклади документів,
-                                мотиваційний лист, біографія словацькою мовою.
-                            </p>
-                        </article>
+                                <div>
+                                    <h3>{{ l(reason.title) }}</h3>
+                                    <p>{{ l(reason.description) }}</p>
+                                </div>
 
-                        <article class="step-card">
-                            <span class="step-number">02</span>
-                            <h3>Під час вступу</h3>
-
-                            <p>
-                                Подача заявок, комунікація з університетом,
-                                онлайн-іспити та отримання листа про зарахування.
-                            </p>
-                        </article>
-
-                        <article class="step-card">
-                            <span class="step-number">03</span>
-                            <h3>Після зарахування</h3>
-
-                            <p>
-                                Гуртожиток, студентський кабінет
-                                та додаткові послуги залежно від пакета.
-                            </p>
-                        </article>
-
-                    </div>
-
-                </div>
-            </section>
-
-            <section class="section section-light">
-                <div class="container">
-
-                    <span class="section-label">03 / ЕТАПИ СПІВПРАЦІ</span>
-
-                    <h2>Процес <em>вступу.</em></h2>
-
-                    <div class="steps-grid">
-
-                        @for (step of steps; track step.title; let i = $index) {
-
-                            <article class="step-card">
-                <span class="step-number">
-                  {{ i + 1 < 10 ? '0' : '' }}{{ i + 1 }}
+                                <span class="trust-check">
+                  <i class="bi bi-check-lg"></i>
                 </span>
-
-                                <h3>{{ step.title }}</h3>
-                                <p>{{ step.description }}</p>
                             </article>
+                        }
 
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="container">
+
+          <span class="section-label">
+            03 / NEWGEN PROCESS
+          </span>
+
+                    <h2>
+                        {{ t('stepsTitle') }}
+                        <em>{{ t('stepsGold') }}</em>
+                    </h2>
+
+                    <div class="steps-grid">
+
+                        @for (step of steps; track $index; let i = $index) {
+                            <article class="step-card">
+                                <span class="card-number">0{{ i + 1 }}</span>
+                                <h3>{{ l(step.title) }}</h3>
+                                <p>{{ l(step.description) }}</p>
+                            </article>
                         }
 
                     </div>
@@ -350,343 +611,218 @@
         }
 
 
-        <!-- ==================== УНІВЕРСИТЕТИ ==================== -->
+        <!-- =================================
+             UNIVERSITIES
+        ================================= -->
 
         @case ('universities') {
 
-            <section class="page-hero">
+            <section class="section">
                 <div class="container">
 
-                    <span class="eyebrow">ОСВІТА У СЛОВАЧЧИНІ</span>
+          <span class="section-label">
+            01 / NEWGEN CATALOG
+          </span>
 
-                    <h1>Знайди свій <em>університет.</em></h1>
-
-                    <p>
-                        Університети Словаччини,
-                        представлені в матеріалах NewGen Study.
-                    </p>
-
-                </div>
-            </section>
-
-            <!-- Каталог із пошуком -->
-
-            <section class="section section-light">
-                <div class="container">
-
-                    <div class="section-heading">
-                        <span class="section-label">01 / КАТАЛОГ</span>
-
-                        <h2>
-                            Університети <em>Словаччини.</em>
-                        </h2>
-                    </div>
-
-                    <!-- ПОШУК ТІЛЬКИ У ВКЛАДЦІ УНІВЕРСИТЕТИ -->
+                    <h2 class="section-heading">
+                        {{ t('universitiesTitle') }}
+                        <em>{{ t('universitiesGold') }}</em>
+                    </h2>
 
                     <div class="university-search-wrapper">
 
                         <div class="university-search-field">
-
                             <i class="bi bi-search"></i>
 
                             <input
                                     type="search"
-                                    placeholder="Пошук за містом або назвою університету..."
-                                    aria-label="Пошук університетів"
+                                    [placeholder]="t('universitySearchPlaceholder')"
+                                    [attr.aria-label]="t('universitySearchPlaceholder')"
                                     [value]="universitySearch"
                                     (input)="universitySearch = $any($event.target).value">
-
                         </div>
 
                         <span class="university-search-count">
-              Знайдено: {{ filteredUniversities.length }}
+              {{ t('found') }}:
+                            {{ filteredUniversities.length }}
             </span>
 
                     </div>
 
-                    <!-- ВІДФІЛЬТРОВАНІ УНІВЕРСИТЕТИ -->
-
                     <div class="universities-grid">
 
                         @for (uni of filteredUniversities; track uni.name) {
-
                             <article class="university-card">
 
-                                <div class="university-image">
-                                    <img
-                                            [src]="uni.image"
-                                            [alt]="uni.name"
-                                            loading="lazy">
-                                </div>
+                                <img
+                                        class="university-image"
+                                        [src]="uni.image"
+                                        [alt]="uni.name"
+                                        loading="lazy">
 
                                 <div class="university-info">
-                                    <span>{{ uni.city }}</span>
+
+                  <span class="city-label">
+                    <i class="bi bi-geo-alt"></i>
+                      {{ l(uni.city) }}
+                  </span>
 
                                     <h3>{{ uni.name }}</h3>
 
-                                    <p>Університет Словаччини</p>
+                                    <p>{{ t('universityCaption') }}</p>
 
-                                    <div class="card-link">
-                                        Детальніше ↗
-                                    </div>
                                 </div>
 
                             </article>
-
                         }
 
                     </div>
 
-                    <!-- Якщо нічого не знайдено -->
-
                     @if (filteredUniversities.length === 0) {
-
-                        <div class="university-no-results">
-
+                        <div class="no-results">
                             <i class="bi bi-search"></i>
-
-                            <h3>Університетів не знайдено</h3>
-
-                            <p>
-                                Спробуй ввести іншу назву
-                                університету або міста.
-                            </p>
-
+                            <p>{{ t('noResults') }}</p>
                         </div>
-
                     }
 
                 </div>
             </section>
 
-            <!-- Напрями навчання -->
 
-            <section class="section section-dark">
+            <section class="section">
                 <div class="container">
 
           <span class="section-label">
-            02 / НАПРЯМИ НАВЧАННЯ
+            02 / NEWGEN DIRECTIONS
           </span>
 
-                    <h2>Який напрям <em>тобі цікавий?</em></h2>
+                    <h2>{{ t('directions') }}</h2>
 
                     <div class="directions-grid">
-                        <div>IT та інформатика</div>
-                        <div>Економіка та менеджмент</div>
-                        <div>Авіація та транспорт</div>
-                        <div>Біологія</div>
-                        <div>Педагогіка</div>
-                        <div>Гуманітарні напрями</div>
+
+                        @for (direction of studyDirections; track $index) {
+                            <div class="direction-card">
+                                {{ l(direction) }}
+                            </div>
+                        }
+
                     </div>
 
                 </div>
             </section>
 
-            <!-- Допомога з вибором -->
 
-            <section class="section section-light">
-                <div class="container two-columns">
+            <section class="section">
+                <div class="container call-to-action">
 
-                    <div>
-            <span class="section-label">
-              03 / ПІДБІР УНІВЕРСИТЕТУ
-            </span>
+                    <h2>
+                        {{ l(pageHeaders.universities.title) }}
+                        <em>{{ l(pageHeaders.universities.accent) }}</em>
+                    </h2>
 
-                        <h2>Допоможемо <em>з вибором.</em></h2>
-                    </div>
-
-                    <div class="large-description">
-
-                        <p>
-                            Підбір університету входить до кожного
-                            з трьох пакетів NewGen Study.
-                        </p>
-
-                        <p>
-                            Після вибору університету компанія допомагає
-                            підготувати необхідні документи та подати заявку.
-                        </p>
-
-                    </div>
+                    <button
+                            type="button"
+                            class="button button-gold"
+                            (click)="changeTab('quiz')">
+                        {{ l(tabs[3].name) }}
+                    </button>
 
                 </div>
             </section>
         }
 
 
-        <!-- ==================== ПІДБІР ==================== -->
+        <!-- =================================
+             QUIZ
+        ================================= -->
 
         @case ('quiz') {
 
-            <section class="page-hero">
-                <div class="container">
+            <section class="section">
+                <div class="container quiz-form">
 
-          <span class="eyebrow">
-            NEWGEN STUDY / UNIVERSITY MATCH
-          </span>
+                    @for (question of quizQuestions; track question.id; let i = $index) {
+                        <section class="quiz-question-block">
 
-                    <h1>Знайди свій <em>університет.</em></h1>
+                            <div class="quiz-question-heading">
+                <span class="quiz-question-number">
+                  0{{ i + 1 }}
+                </span>
 
-                    <p>
-                        Дай відповіді на кілька запитань,
-                        щоб ми могли підібрати університети
-                        Словаччини відповідно до твоїх побажань.
-                    </p>
+                                <h3>{{ l(question.title) }}</h3>
+                            </div>
 
-                </div>
-            </section>
+                            @if (question.id === 'city') {
+                                <div class="city-search-wrapper">
 
-            <section class="section section-light quiz-section">
-                <div class="container">
+                                    <div class="city-search-field">
+                                        <i class="bi bi-search"></i>
 
-                    <div class="quiz-form">
-
-                        <div class="quiz-form-header">
-              <span class="section-label">
-                АНКЕТА ДЛЯ ПІДБОРУ
-              </span>
-
-                            <h2>
-                                Розкажи нам про <em>свої побажання.</em>
-                            </h2>
-
-                            <p>
-                                Обери по одному варіанту відповіді
-                                для кожного запитання.
-                            </p>
-                        </div>
-
-                        <div class="quiz-questions">
-
-                            @for (question of quizQuestions; track question.id; let i = $index) {
-                                <div class="quiz-question-block">
-                                    <div class="quiz-question-heading">
-                                        <span class="quiz-question-number">{{ i + 1 < 10 ? '0' : '' }}{{ i + 1 }}</span>
-                                        <h3>{{ question.title }}</h3>
+                                        <input
+                                                type="text"
+                                                list="slovak-cities"
+                                                autocomplete="off"
+                                                [placeholder]="t('cityPlaceholder')"
+                                                [value]="quizAnswers['city'] || ''"
+                                                (input)="updateQuizCity($any($event.target).value)">
                                     </div>
 
-                                    <!-- Пошук міста лише для питання CITY -->
+                                    <datalist id="slovak-cities">
+                                        @for (city of slovakCities; track city.uk) {
+                                            <option [value]="l(city)"></option>
+                                        }
+                                    </datalist>
 
-                                    @if (question.id === 'city') {
+                                </div>
+                            } @else {
+                                <div class="quiz-answer-grid">
 
-                                        <div class="city-search-wrapper">
+                                    @for (option of question.options; track option.value) {
+                                        <button
+                                                type="button"
+                                                class="quiz-answer"
+                                                [class.selected]="isQuizSelected(question.id, option.value)"
+                                                [attr.aria-pressed]="isQuizSelected(question.id, option.value)"
+                                                (click)="selectQuizAnswer(question.id, option.value)">
 
-                                            <label for="quiz-city-search">
-                                                Введи назву міста
-                                            </label>
+                                            <span class="quiz-radio"></span>
+                                            <span>{{ l(option.title) }}</span>
 
-                                            <div class="city-search-field">
-
-                                                <i class="bi bi-search"></i>
-
-                                                <input
-                                                        id="quiz-city-search"
-                                                        type="text"
-                                                        list="slovak-cities"
-                                                        placeholder="Наприклад, Кошице..."
-                                                        autocomplete="off"
-                                                        [value]="quizAnswers['city'] || ''"
-                                                        (input)="updateQuizCity($any($event.target).value)">
-
-                                            </div>
-
-                                            <datalist id="slovak-cities">
-                                                @for (city of slovakCities; track city) {
-                                                    <option [value]="city"></option>
-                                                }
-                                            </datalist>
-
-                                            <p class="city-search-hint">
-                                                Почни вводити назву міста
-                                                або обери зі списку підказок.
-                                            </p>
-
-                                        </div>
-
-                                    } @else {
-
-                                        <!-- Звичайні варіанти відповідей -->
-
-                                        <div class="quiz-answer-grid">
-
-                                            @for (option of question.options; track option) {
-
-                                                <button
-                                                        type="button"
-                                                        class="quiz-answer"
-                                                        [class.selected]="isQuizSelected(question.id, option)"
-                                                        [attr.aria-pressed]="isQuizSelected(question.id, option)"
-                                                        (click)="selectQuizAnswer(question.id, option)">
-
-                                                    <span class="quiz-radio"></span>
-                                                    <span>{{ option }}</span>
-
-                                                </button>
-
-                                            }
-
-                                        </div>
-
+                                        </button>
                                     }
 
                                 </div>
-
                             }
 
-                        </div>
+                        </section>
+                    }
 
-                        <!-- Неактивна кнопка результатів -->
-
-                        <div class="quiz-submit-area">
-
-                            <p>
-                                Після заповнення анкети ти зможеш
-                                отримати підбір університетів.
-                            </p>
-
-                            <button type="button" class="quiz-submit-button" disabled>
-                                Отримати підбір
-                            </button>
-                        </div>
+                    <div class="quiz-submit-area">
+                        <button
+                                type="button"
+                                class="button button-gold"
+                                disabled>
+                            {{ t('getMatching') }}
+                        </button>
                     </div>
+
                 </div>
             </section>
         }
 
 
-        <!-- ==================== ПОСЛУГИ ==================== -->
+        <!-- =================================
+             PRICING
+        ================================= -->
 
         @case ('pricing') {
 
-            <section class="page-hero">
+            <section class="section">
                 <div class="container">
-
-                    <span class="eyebrow">NEWGEN STUDY / SERVICES</span>
-
-                    <h1>Наші <em>послуги.</em></h1>
-
-                    <p>
-                        Три пакети супроводу для вступу
-                        до університетів Словаччини.
-                    </p>
-
-                </div>
-            </section>
-
-            <section class="section section-light">
-                <div class="container">
-
-                    <div class="section-heading">
-                        <span class="section-label">01 / ПАКЕТИ</span>
-
-                        <h2>Обери свій <em>пакет.</em></h2>
-                    </div>
 
                     <div class="pricing-grid full-pricing">
 
-                        @for (pack of packages; track pack.name; let pi = $index) {
-
+                        @for (pack of packages; track pack.price; let pi = $index) {
                             <article
                                     class="price-card"
                                     [class.featured]="pack.featured">
@@ -695,245 +831,375 @@
                   0{{ pi + 1 }} / NEWGEN
                 </span>
 
-                                <h3>{{ pack.name }}</h3>
+                                <h3>{{ l(pack.name) }}</h3>
 
                                 <div class="price">
                                     {{ pack.price }} €
                                 </div>
 
-                                <p>
-                                    Оплата {{ pack.applications }}
-                                    {{ pack.applications === 1 ? 'заявки' : 'заявок' }}
-                                    до університету
+                                <p class="price-description">
+                                    {{ t(
+                                    pack.applications === 1
+                                        ? 'applicationsOne'
+                                        : 'applicationsTwo'
+                                ) }}
                                 </p>
 
                                 <div class="price-divider"></div>
 
                                 <ul class="service-list">
 
-                                    @for (service of services; track service; let si = $index) {
+                                    @for (service of services; track $index; let si = $index) {
+                                        <li
+                                                [class.service-not-included]="!hasService(si, pi)">
 
-                                        @if (hasService(si, pi)) {
+                      <span
+                              class="service-icon"
+                              [class.included-icon]="hasService(si, pi)"
+                              [class.excluded-icon]="!hasService(si, pi)"
+                              aria-hidden="true">
 
-                                            <li>
-                                                <span class="check">✓</span>
-                                                {{ service }}
-                                            </li>
+                        @if (hasService(si, pi)) {
+                            <i class="bi bi-check-lg"></i>
+                        } @else {
+                            <i class="bi bi-x-lg"></i>
+                        }
 
-                                        }
+                      </span>
 
+                                            <span>{{ l(service) }}</span>
+
+                                        </li>
                                     }
 
                                 </ul>
 
-                                <span class="price-button">Обрати пакет</span>
+                                <span class="price-button price-button-static">
+                  {{ t('choosePackage') }}
+                </span>
 
                             </article>
-
                         }
 
                     </div>
 
                 </div>
             </section>
-
-            <!-- Порівняння пакетів -->
-
-            <section class="section section-dark">
-                <div class="container">
-
-                    <span class="section-label">02 / ПОРІВНЯННЯ</span>
-
-                    <h2>Порівняння <em>послуг.</em></h2>
-
-                    <div class="table-wrapper">
-                        <table class="comparison-table">
-                            <thead>
-                            <tr>
-                                <th>Послуга</th>
-                                @for (pack of packages; track pack.name) {
-                                    <th>
-                                        {{ pack.name }}
-                                        <small>{{ pack.price }} €</small>
-                                    </th>
-                                }
-                            </tr>
-                            </thead>
-                            <tbody>
-                                @for (service of services; track service; let si = $index) {
-                                    <tr>
-                                        <td>{{ service }}</td>
-                                        @for (pack of packages; track pack.name; let pi = $index) {
-                                            <td>
-                                                @if (hasService(si, pi)) {
-                                                    <span class="table-check">✓</span>
-                                                } @else {
-                                                    <span class="table-empty">—</span>
-                                                }
-                                            </td>
-                                        }
-                                    </tr>
-                                }
-                            <tr>
-                                <td>Оплата заявок до університету</td>
-                                @for (pack of packages; track pack.name) {
-                                    <td>{{ pack.applications }}</td>
-                                }
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
         }
 
 
-        <!-- ==================== ВІДГУКИ ==================== -->
+        <!-- =================================
+             REVIEWS / STORIES
+        ================================= -->
 
         @case ('reviews') {
 
-            <section class="page-hero">
-                <div class="container">
+            <section class="section reviews-section">
+                <div class="container reviews-layout">
 
-                    <span class="eyebrow">NEWGEN STUDY / REVIEWS</span>
+                    <div class="stories-area">
 
-                    <h1>Відгуки <em>студентів.</em></h1>
+                        <div class="stories-carousel">
 
-                    <p>Місце для відгуків студентів NewGen Study.</p>
+                            <button
+                                    type="button"
+                                    class="story-side-arrow"
+                                    [attr.aria-label]="t('previous')"
+                                    (click)="previousReview()">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
 
-                </div>
-            </section>
 
-            <section class="section section-light">
-                <div class="container">
+                            <div
+                                    class="story-card"
+                                    tabindex="0"
+                                    role="group"
+                                    [attr.aria-label]="t('storyTitle')"
+                                    [class.story-is-held]="isStoryHeld"
+                                    [class.story-is-paused]="isReviewPaused"
+                                    (pointerdown)="onStoryPointerDown($event)"
+                                    (pointerup)="onStoryPointerUp($event)"
+                                    (pointercancel)="onStoryPointerCancel($event)"
+                                    (pointerleave)="onStoryPointerLeave($event)"
+                                    (contextmenu)="onStoryContextMenu($event)"
+                                    (keydown)="onStoryKeyDown($event)">
 
-                    <span class="section-label">01 / ВІДГУКИ</span>
+                                <!-- PROGRESS -->
 
-                    <h2>Історії <em>студентів.</em></h2>
+                                <div class="story-progress">
 
-                    <div class="reviews-grid">
+                                    @for (review of reviews; track $index; let i = $index) {
+                                        <button
+                                                type="button"
+                                                class="story-progress-item"
+                                                [attr.aria-label]="(i + 1) + ' / ' + reviews.length"
+                                                (click)="showReview(i)">
 
-                        <article class="review-card">
-                            <span class="review-index">01 / ВІДГУК</span>
-                            <div class="quote-icon">“</div>
-                            <p>Місце для текстового відгуку студента.</p>
-                            <div class="review-footer">NEWGEN STUDY</div>
-                        </article>
+                      <span
+                              class="story-progress-fill"
+                              [style.width.%]="storyProgress(i)">
+                      </span>
 
-                        <article class="review-card">
-                            <span class="review-index">02 / ВІДГУК</span>
-                            <div class="quote-icon">“</div>
-                            <p>Місце для текстового або відеовідгуку.</p>
-                            <div class="review-footer">NEWGEN STUDY</div>
-                        </article>
+                                        </button>
+                                    }
 
-                        <article class="review-card">
-                            <span class="review-index">03 / ВІДГУК</span>
-                            <div class="quote-icon">“</div>
-                            <p>Місце для ще одного реального відгуку.</p>
-                            <div class="review-footer">NEWGEN STUDY</div>
-                        </article>
+                                </div>
+
+
+                                <!-- AUTHOR -->
+
+                                <div class="story-topline">
+
+                                    <div class="story-avatar">
+                                        NG
+                                    </div>
+
+                                    <div class="story-author">
+                                        <strong>{{ l(activeReview.name) }}</strong>
+                                        <span>{{ l(activeReview.university) }}</span>
+                                    </div>
+
+                                    <div class="story-header-icons">
+                                        <i
+                                                [class]="storyIsStopped
+                        ? 'bi bi-pause-fill'
+                        : 'bi bi-play-fill'">
+                                        </i>
+                                    </div>
+
+                                </div>
+
+
+                                <!-- SCROLLABLE REVIEW -->
+
+                                <div class="story-body" #storyScrollable>
+
+                  <span class="story-eyebrow">
+                    NEWGEN STUDY / EXPERIENCE
+                  </span>
+
+                                    <div class="story-quote">“</div>
+
+                                    <blockquote>
+                                        {{ l(activeReview.text) }}
+                                    </blockquote>
+
+                                    <div class="story-gold-line"></div>
+
+                                </div>
+
+
+                                <!-- FOOTER OF STORY -->
+
+                                <div class="story-bottom">
+                  <span class="story-bottom-brand">
+                    NG · NEWGEN STUDY AGENCY
+                  </span>
+
+                                    <span class="story-counter">
+                    {{ reviewIndex + 1 }} / {{ reviews.length }}
+                  </span>
+                                </div>
+
+
+                                <!-- HOLD STATE -->
+
+                                @if (storyIsStopped) {
+                                    <div class="story-status">
+                                        <i class="bi bi-pause-fill"></i>
+                                        {{ t('storyPaused') }}
+                                    </div>
+                                }
+
+                            </div>
+
+
+                            <button
+                                    type="button"
+                                    class="story-side-arrow"
+                                    [attr.aria-label]="t('next')"
+                                    (click)="nextReview()">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+
+                        </div>
+
+
+                        <!-- PLAYBACK CONTROLS -->
+
+                        <div class="story-toolbar">
+
+                            <div class="story-playback-indicator">
+                <span
+                        class="story-live-dot"
+                        [class.stopped]="storyIsStopped">
+                </span>
+
+                                {{ storyIsStopped
+                                ? t('storyPaused')
+                                : t('storyPlaying') }}
+                            </div>
+
+                            <button
+                                    type="button"
+                                    class="story-pause-button"
+                                    [attr.aria-pressed]="isReviewPaused"
+                                    (click)="toggleReviewPlayback()">
+
+                                @if (isReviewPaused) {
+                                    <i class="bi bi-play-fill"></i>
+                                    {{ t('continue') }}
+                                } @else {
+                                    <i class="bi bi-pause-fill"></i>
+                                    {{ t('pause') }}
+                                }
+
+                            </button>
+
+                        </div>
+
                     </div>
+
                 </div>
             </section>
         }
 
 
-        <!-- ==================== КОНТАКТИ ==================== -->
+        <!-- =================================
+             CONTACT
+        ================================= -->
 
         @case ('contact') {
 
-            <section class="page-hero">
-                <div class="container">
-
-                    <span class="eyebrow">NEWGEN STUDY / CONTACT</span>
-
-                    <h1>Зв'яжися <em>з нами.</em></h1>
-
-                    <p>
-                        Консультація щодо вступу
-                        до університетів Словаччини.
-                    </p>
-
-                </div>
-            </section>
-
-            <section class="section section-light">
+            <section class="section">
                 <div class="container contact-layout">
 
                     <div>
-                        <span class="section-label">01 / КОНСУЛЬТАЦІЯ</span>
+            <span class="section-label">
+              01 / NEWGEN CONTACT
+            </span>
 
-                        <h2>Залиш <em>заявку.</em></h2>
+                        <h2>
+                            {{ t('consultationTitle') }}
+                            <em>{{ t('consultationGold') }}</em>
+                        </h2>
 
-                        <p class="large-description">
-                            NewGen Study допомагає з підбором університету,
-                            підготовкою документів і супроводом вступу.
+                        <p class="lead-copy">
+                            {{ t('consultationDescription') }}
                         </p>
                     </div>
 
                     <div class="contact-form">
-                        <h3>Заявка на консультацію</h3>
-                        <label>Ім'я</label>
-                        <input placeholder="Ваше ім'я" disabled>
 
-                        <label>Номер телефону</label>
-                        <input placeholder="+380..." disabled>
+                        <h3>{{ t('consultationTitle') }}</h3>
 
-                        <label>Email</label>
-                        <input placeholder="email@example.com" disabled>
+                        <label for="contact-name">{{ t('name') }}</label>
+                        <input
+                                id="contact-name"
+                                [placeholder]="t('name')"
+                                disabled>
 
-                        <label>Послуга</label>
+                        <label for="contact-phone">{{ t('phone') }}</label>
+                        <input
+                                id="contact-phone"
+                                placeholder="+380..."
+                                disabled>
 
-                        <select disabled>
-                            <option>Підбір університету</option>
-                            <option>Економ</option>
-                            <option>Комфорт</option>
-                            <option>Преміум</option>
+                        <label for="contact-email">Email</label>
+                        <input
+                                id="contact-email"
+                                type="email"
+                                placeholder="email@example.com"
+                                disabled>
+
+                        <label for="contact-service">{{ t('service') }}</label>
+                        <select id="contact-service" disabled>
+
+                            <option>{{ l(tabs[3].name) }}</option>
+
+                            @for (pack of packages; track pack.price) {
+                                <option>{{ l(pack.name) }}</option>
+                            }
+
                         </select>
 
+                        <button
+                                type="button"
+                                class="button button-gold"
+                                disabled>
+                            {{ t('send') }}
+                        </button>
 
-                        <div class="button button-gold">
-                            Надіслати заявку
-                        </div>
                     </div>
+
                 </div>
             </section>
         }
+
     }
 </main>
 
 
-<!-- ==================== FOOTER ==================== -->
+<!-- =====================================
+     FOOTER
+===================================== -->
 
 <footer class="site-footer">
     <div class="container footer-main">
 
         <div class="footer-brand">
-            <img src="assets/logo.png" alt="NewGen Study Agency">
+
+            <img
+                    src="assets/logo.png"
+                    alt="NewGen Study Agency">
+
             <div class="footer-description">
                 <h3>NewGen Study Agency</h3>
-                <p>
-                    Допомога абітурієнтам зі вступом
-                    до університетів Словаччини.
-                </p>
+                <p>{{ t('footerText') }}</p>
+                <span>{{ t('footerServices') }}</span>
             </div>
+
         </div>
 
         <div class="footer-contacts">
-            <h3>Зв'язатися з нами</h3>
+
+            <h3>{{ t('contactUs') }}</h3>
+
             <div class="footer-socials">
-                <a href="tel:+380XXXXXXXXX" aria-label="Телефон"><i class="bi bi-telephone-fill"></i></a>
-                <a href="mailto:your@email.com" aria-label="Email"><i class="bi bi-envelope-fill"></i></a>
-                <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-                <a href="#" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
-                <a href="#" aria-label="Telegram"><i class="bi bi-telegram"></i></a>
+
+        <span class="social-link" aria-label="Телефон">
+          <i class="bi bi-telephone-fill"></i>
+        </span>
+
+                <span class="social-link" aria-label="Email">
+          <i class="bi bi-envelope-fill"></i>
+        </span>
+
+                <span class="social-link" aria-label="Instagram">
+          <i class="bi bi-instagram"></i>
+        </span>
+
+                <span class="social-link" aria-label="TikTok">
+          <i class="bi bi-tiktok"></i>
+        </span>
+
+                <span class="social-link" aria-label="Telegram">
+          <i class="bi bi-telegram"></i>
+        </span>
+
             </div>
+
         </div>
+
     </div>
 
     <div class="container footer-bottom">
-        <span>© 2026 NewGen Study Agency. Усі права захищені.</span>
-        <span>Навчання у Словаччині</span>
+    <span>
+      © 2026 NewGen Study Agency.
+        {{ t('rights') }}
+    </span>
+
+        <span>NEWGEN STUDY · SLOVAKIA</span>
     </div>
+
 </footer>

@@ -1,1 +1,50 @@
-:root{font-family:'Manrope',Arial,sans-serif;color:#112c36;background:#f7f8f5;font-synthesis:none}*{box-sizing:border-box}body{margin:0}img{display:block;max-width:100%}h1,h2,h3,p{margin-top:0}button,input,select{font:inherit}html{scroll-behavior:smooth}
+
+:root {
+    font-family: 'DM Sans', Arial, sans-serif;
+
+    color: #ffffff;
+    background: #07182b;
+
+    font-synthesis: none;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+
+    background: #07182b;
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+
+    min-width: 320px;
+    min-height: 100vh;
+
+    background: #07182b;
+    color: #ffffff;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+app-root {
+    display: block;
+    min-height: 100vh;
+
+    background: #07182b;
+}
