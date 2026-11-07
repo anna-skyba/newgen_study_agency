@@ -7,6 +7,14 @@ import {
   ViewChild
 } from '@angular/core';
 
+import {
+  NavigationEnd,
+  Router
+} from '@angular/router';
+
+import { filter, Subscription } from 'rxjs';
+import { LeadFormComponent } from './lead-form.component';
+
 type Tab =
     | 'home'
     | 'about'
@@ -23,38 +31,64 @@ type Localized = {
   ru: string;
 };
 
-const tr = (uk: string, ru: string): Localized => ({ uk, ru });
+type Specialty =
+    | 'medicine'
+    | 'it'
+    | 'engineering'
+    | 'logistics'
+    | 'economics'
+    | 'design'
+    | 'other';
 
-type PageHeader = {
-  eyebrow: string;
-  title: Localized;
-  accent: Localized;
-  description: Localized;
-};
+type MatchMode =
+    | 'exact'
+    | 'alternative'
+    | 'explore'
+    | 'exploreOtherCity';
 
-type University = {
+interface University {
   name: string;
+  cityId: string;
   city: Localized;
   image: string;
   aliases: string;
-};
+  specialties: Specialty[];
+  focus: Localized;
+}
 
-type Review = {
+interface QuizOption {
+  value: string;
+  title: Localized;
+}
+
+interface QuizQuestion {
+  id: string;
+  title: Localized;
+  options: QuizOption[];
+}
+
+interface Review {
   name: Localized;
-  university: Localized;
+  university: string;
   text: Localized;
-};
+}
 
-type StoryPress = {
+interface StoryPress {
   pointerId: number;
   x: number;
   y: number;
   timestamp: number;
-};
+}
+
+const tr = (uk: string, ru: string): Localized => ({
+  uk,
+  ru
+});
 
 @Component({
-  selector: 'app-root',
+  selector: 'app-newgen-page',
   standalone: true,
+  imports: [LeadFormComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -63,26 +97,139 @@ export class AppComponent implements OnDestroy {
   @ViewChild('storyScrollable')
   storyScrollable?: ElementRef<HTMLElement>;
 
-  activeTab: Tab = 'home';
   language: Language = 'uk';
+  activeTab: Tab = 'home';
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  private readonly routeSubscription: Subscription;
 
-  // =====================================
-  // NAVIGATION
-  // =====================================
+  constructor(
+      private readonly router: Router,
+      private readonly cdr: ChangeDetectorRef
+  ) {
+    this.routeSubscription = this.router.events
+        .pipe(
+            filter(
+                (event): event is NavigationEnd =>
+                    event instanceof NavigationEnd
+            )
+        )
+        .subscribe(event => {
+          this.syncTab(event.urlAfterRedirects);
+        });
+
+    this.syncTab(this.router.url);
+  }
+
+  // ======================================
+  // ROUTING
+  // ======================================
+
+  readonly tabPaths: Record<Tab, string> = {
+    home: '/',
+    about: '/about',
+    universities: '/universities',
+    quiz: '/quiz',
+    pricing: '/pricing',
+    reviews: '/reviews',
+    contact: '/contact'
+  };
 
   tabs: { id: Tab; name: Localized }[] = [
     { id: 'home', name: tr('Головна', 'Главная') },
     { id: 'about', name: tr('Про нас', 'О нас') },
-    { id: 'universities', name: tr('Університети', 'Университеты') },
+    {
+      id: 'universities',
+      name: tr('Університети', 'Университеты')
+    },
     { id: 'quiz', name: tr('Підбір', 'Подбор') },
     { id: 'pricing', name: tr('Послуги', 'Услуги') },
     { id: 'reviews', name: tr('Відгуки', 'Отзывы') },
     { id: 'contact', name: tr('Контакти', 'Контакты') }
   ];
 
-  pageHeaders: Record<Tab, PageHeader> = {
+  private syncTab(url: string): void {
+    const path =
+        url.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
+
+    const nextTab =
+        (Object.keys(this.tabPaths) as Tab[])
+            .find(tab => this.tabPaths[tab] === path) ?? 'home';
+
+    const changed = this.activeTab !== nextTab;
+
+    if (changed) {
+      this.stopReviewTimer();
+
+      this.activeTab = nextTab;
+      this.isStoryHeld = false;
+      this.activeStoryPress = null;
+
+      if (nextTab === 'reviews') {
+        this.storyElapsedMs = 0;
+        this.startReviewTimer();
+      }
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant'
+      });
+    }
+
+    this.updatePageTitle();
+    this.cdr.markForCheck();
+  }
+
+  changeTab(tab: Tab): void {
+    if (tab === this.activeTab) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    void this.router.navigateByUrl(this.tabPaths[tab]);
+  }
+
+  private updatePageTitle(): void {
+    const page = this.tabs.find(
+        tab => tab.id === this.activeTab
+    );
+
+    document.title =
+        `${page ? this.l(page.name) : 'NewGen Study'} — NewGen Study`;
+  }
+
+  // ======================================
+  // LANGUAGE
+  // ======================================
+
+  l(value: Localized): string {
+    return value[this.language];
+  }
+
+  setLanguage(language: Language): void {
+    this.language = language;
+    document.documentElement.lang = language;
+
+    this.updatePageTitle();
+
+    if (this.activeTab === 'reviews') {
+      this.stopReviewTimer();
+      this.storyElapsedMs = 0;
+      this.startReviewTimer();
+    }
+
+    this.cdr.markForCheck();
+  }
+
+  // ======================================
+  // HEADERS
+  // ======================================
+
+  pageHeaders: Record<Tab, {
+    eyebrow: string;
+    title: Localized;
+    accent: Localized;
+    description: Localized;
+  }> = {
     home: {
       eyebrow: 'NEWGEN STUDY AGENCY',
       title: tr(
@@ -109,17 +256,17 @@ export class AppComponent implements OnDestroy {
       title: tr('Знайди свій', 'Найди свой'),
       accent: tr('університет.', 'университет.'),
       description: tr(
-          'Ознайомся з університетами Словаччини та обери свій напрям навчання.',
-          'Познакомься с университетами Словакии и выбери своё направление обучения.'
+          'Університети Словаччини, напрями навчання та можливості для майбутніх студентів.',
+          'Университеты Словакии, направления обучения и возможности для будущих студентов.'
       )
     },
     quiz: {
       eyebrow: 'NEWGEN STUDY / UNIVERSITY MATCH',
-      title: tr('Розкажи нам про', 'Расскажи нам о'),
-      accent: tr('свої побажання.', 'своих пожеланиях.'),
+      title: tr('Знайди своє', 'Найди своё'),
+      accent: tr('місце навчання.', 'место обучения.'),
       description: tr(
-          'Заповни коротку анкету та визнач свої пріоритети щодо майбутнього навчання.',
-          'Заполни короткую анкету и определи свои приоритеты относительно будущей учёбы.'
+          'Відповідай на кілька запитань та отримай попередній підбір університетів.',
+          'Ответь на несколько вопросов и получи предварительный подбор университетов.'
       )
     },
     pricing: {
@@ -127,8 +274,8 @@ export class AppComponent implements OnDestroy {
       title: tr('Обери свій', 'Выбери свой'),
       accent: tr('пакет супроводу.', 'пакет сопровождения.'),
       description: tr(
-          'Три пакети допомоги зі вступом до університетів Словаччини.',
-          'Три пакета помощи при поступлении в университеты Словакии.'
+          'Обери пакет послуг для вступу до університетів Словаччини.',
+          'Выбери пакет услуг для поступления в университеты Словакии.'
       )
     },
     reviews: {
@@ -145,249 +292,112 @@ export class AppComponent implements OnDestroy {
       title: tr('Зв’яжися', 'Свяжись'),
       accent: tr('з нами.', 'с нами.'),
       description: tr(
-          'Розкажи про свої плани щодо навчання у Словаччині.',
-          'Расскажи о своих планах относительно учёбы в Словакии.'
+          'Розкажи про свої плани щодо навчання в Словаччині — ми допоможемо визначитися з наступними кроками.',
+          'Расскажи о своих планах обучения в Словакии — мы поможем определиться со следующими шагами.'
       )
     }
   };
 
-  // =====================================
-  // TRANSLATIONS
-  // =====================================
-
-  texts: Record<string, Localized> = {
-    viewUniversities: tr(
-        'Переглянути університети',
-        'Посмотреть университеты'
-    ),
-    ourPackages: tr('Наші пакети', 'Наши пакеты'),
-    details: tr('Детальніше', 'Подробнее'),
-
-    aboutTitle: tr('Навчання за кордоном', 'Обучение за границей'),
-    aboutGold: tr('починається з вибору.', 'начинается с выбора.'),
-
-    aboutDescription1: tr(
-        'NewGen Study — компанія, яка допомагає абітурієнтам вступати до університетів Словаччини.',
-        'NewGen Study — компания, которая помогает абитуриентам поступать в университеты Словакии.'
-    ),
-    aboutDescription2: tr(
-        'Ми допомагаємо з підбором навчального закладу, перекладом документів, підготовкою мотиваційного листа, подачею заявок і комунікацією з університетами. Додатковий супровід залежить від обраного пакета.',
-        'Мы помогаем с подбором учебного заведения, переводом документов, подготовкой мотивационного письма, подачей заявок и общением с университетами. Дополнительное сопровождение зависит от выбранного пакета.'
-    ),
-
-    benefitsLabel: tr('ЧОМУ СЛОВАЧЧИНА', 'ПОЧЕМУ СЛОВАКИЯ'),
-    benefitsTitle: tr('Можливості', 'Возможности'),
-    benefitsGold: tr(
-        'для майбутніх студентів.',
-        'для будущих студентов.'
-    ),
-    benefitsDescription: tr(
-        'Словаччина поєднує доступну європейську освіту, міжнародні можливості та комфортні умови для студентського життя.',
-        'Словакия сочетает доступное европейское образование, международные возможности и комфортные условия для студенческой жизни.'
-    ),
-
-    whyTitle: tr('Чому варто обрати', 'Почему стоит выбрать'),
-    whyGold: tr('NewGen Study?', 'NewGen Study?'),
-
-    guaranteeLabel: tr('ГАРАНТІЇ ТА УМОВИ', 'ГАРАНТИИ И УСЛОВИЯ'),
-    guaranteeTitle: tr(
-        'Ми допоможемо тобі',
-        'Мы поможем тебе'
-    ),
-    guaranteeGold: tr(
-        'вступити до Словаччини.',
-        'поступить в Словакию.'
-    ),
-    guaranteeDescription: tr(
-        'NewGen Study допоможе пройти шлях до вступу: підбере пріоритетні та альтернативні спеціальності, перевірить вимоги університетів, допоможе підготувати документи й організує подачу заявок. Ти матимеш чіткий план дій і підтримку на кожному етапі.',
-        'NewGen Study поможет пройти путь к поступлению: подберёт приоритетные и альтернативные специальности, проверит требования университетов, поможет подготовить документы и организует подачу заявок. У тебя будет чёткий план действий и поддержка на каждом этапе.'
-    ),
-    guaranteeHighlight: tr(
-        '100% підтримки під час вступу',
-        '100% поддержки во время поступления'
-    ),
-    guaranteeNote: tr(
-        'Супровід надається в межах обраного пакета й договору. Остаточне рішення про зарахування ухвалює університет.',
-        'Сопровождение предоставляется в рамках выбранного пакета и договора. Окончательное решение о зачислении принимает университет.'
-    ),
-
-    universitiesTitle: tr('Університети', 'Университеты'),
-    universitiesGold: tr('Словаччини.', 'Словакии.'),
-    universitiesDescription: tr(
-        'Ознайомся з університетами та обери напрям, який тобі підходить.',
-        'Познакомься с университетами и выбери подходящее направление.'
-    ),
-    universityCaption: tr(
-        'Університет Словаччини',
-        'Университет Словакии'
-    ),
-    universitySearchPlaceholder: tr(
-        'Пошук за містом або назвою університету...',
-        'Поиск по городу или названию университета...'
-    ),
-    found: tr('Знайдено', 'Найдено'),
-    noResults: tr(
-        'Університетів не знайдено. Спробуй інший запит.',
-        'Университеты не найдены. Попробуй другой запрос.'
-    ),
-    directions: tr('Напрями навчання', 'Направления обучения'),
-
-    stepsTitle: tr(
-        'Від першої консультації',
-        'От первой консультации'
-    ),
-    stepsGold: tr('до зарахування.', 'до зачисления.'),
-
-    pricingTitle: tr('Обери свій', 'Выбери свой'),
-    pricingGold: tr(
-        'пакет супроводу.',
-        'пакет сопровождения.'
-    ),
-    applicationsOne: tr(
-        'Оплата 1 заявки до університету',
-        'Оплата 1 заявки в университет'
-    ),
-    applicationsTwo: tr(
-        'Оплата 2 заявок до університетів',
-        'Оплата 2 заявок в университеты'
-    ),
-    choosePackage: tr('Обрати пакет', 'Выбрать пакет'),
-
-    faqTitle: tr('Відповідаємо на', 'Отвечаем на'),
-    faqGold: tr('важливі запитання.', 'важные вопросы.'),
-    faqDescription: tr(
-        'Все, що варто знати про навчання, вступ, документи та студентське життя.',
-        'Всё, что стоит знать об учёбе, поступлении, документах и студенческой жизни.'
-    ),
-
-    cityPlaceholder: tr(
-        'Введи назву міста...',
-        'Введи название города...'
-    ),
-    getMatching: tr('Отримати підбір', 'Получить подбор'),
-
-    storyTitle: tr('Історії вступу', 'Истории поступления'),
-    storyPlaying: tr('Автоматичне відтворення', 'Автоматическое воспроизведение'),
-    storyPaused: tr('Призупинено', 'Приостановлено'),
-    pause: tr('Пауза', 'Пауза'),
-    continue: tr('Продовжити', 'Продолжить'),
-    previous: tr('Попередній відгук', 'Предыдущий отзыв'),
-    next: tr('Наступний відгук', 'Следующий отзыв'),
-
-    consultationTitle: tr('Маєш запитання?', 'Есть вопросы?'),
-    consultationGold: tr(
-        'Почни з консультації.',
-        'Начни с консультации.'
-    ),
-    consultationDescription: tr(
-        'Розкажи про свої плани щодо навчання у Словаччині. Ми допоможемо визначитися з наступними кроками.',
-        'Расскажи о своих планах обучения в Словакии. Мы поможем определиться со следующими шагами.'
-    ),
-
-    name: tr('Ім’я', 'Имя'),
-    phone: tr('Номер телефону', 'Номер телефона'),
-    service: tr('Послуга', 'Услуга'),
-    send: tr('Надіслати заявку', 'Отправить заявку'),
-
-    footerText: tr(
-        'Допомога абітурієнтам зі вступом до університетів Словаччини.',
-        'Помощь абитуриентам с поступлением в университеты Словакии.'
-    ),
-    footerServices: tr(
-        'Підбір університету · Документи · Супровід',
-        'Подбор университета · Документы · Сопровождение'
-    ),
-    contactUs: tr('Зв’язатися з нами', 'Связаться с нами'),
-    rights: tr('Усі права захищені.', 'Все права защищены.')
-  };
-
-  t(key: string): string {
-    return this.texts[key]?.[this.language] ?? key;
-  }
-
-  l(value: Localized): string {
-    return value[this.language];
-  }
-
-  setLanguage(language: Language): void {
-    this.language = language;
-    document.documentElement.lang = language;
-
-    if (this.activeTab === 'reviews') {
-      this.storyElapsedMs = 0;
-      this.resetStoryScroll();
-      this.startReviewTimer();
-    }
-  }
-
-  changeTab(tab: Tab): void {
-    this.stopReviewTimer();
-
-    this.activeTab = tab;
-    this.isStoryHeld = false;
-    this.activeStoryPress = null;
-
-    if (tab === 'reviews') {
-      this.storyElapsedMs = 0;
-      this.startReviewTimer();
-    }
-
-    window.scrollTo({ top: 0, behavior: 'auto' });
-  }
-
-  // =====================================
+  // ======================================
   // UNIVERSITIES
-  // =====================================
+  // ======================================
 
   universities: University[] = [
     {
       name: 'Technická univerzita v Košiciach',
+      cityId: 'kosice',
       city: tr('Кошице', 'Кошице'),
       image: 'assets/university-9094.png',
-      aliases: 'TUKE ТУКЕ технічний технический Kosice Košice'
+      aliases: 'TUKE ТУКЕ технічний технический kosice košice',
+      specialties: [
+        'it', 'engineering', 'logistics',
+        'economics', 'design'
+      ],
+      focus: tr(
+          'IT, інженерія, техніка, логістика, економіка, дизайн та архітектура',
+          'IT, инженерия, техника, логистика, экономика, дизайн и архитектура'
+      )
     },
     {
       name: 'Univerzita Pavla Jozefa Šafárika v Košiciach',
+      cityId: 'kosice',
       city: tr('Кошице', 'Кошице'),
       image: 'assets/university-9167.png',
-      aliases: 'UPJŠ UPJS УПЙШ Шафарик Шафарика Kosice Košice'
+      aliases: 'UPJŠ UPJS Шафарик Шафарика kosice košice',
+      specialties: ['medicine', 'it'],
+      focus: tr(
+          'Медицина, біологія, інформатика, природничі науки',
+          'Медицина, биология, информатика, естественные науки'
+      )
     },
     {
       name: 'Žilinská univerzita v Žiline',
+      cityId: 'zilina',
       city: tr('Жиліна', 'Жилина'),
       image: 'assets/university-9171.png',
-      aliases: 'UNIZA Жилінський Жилинский Zilina Žilina'
+      aliases: 'UNIZA Жилінський Жилинский zilina žilina',
+      specialties: [
+        'it', 'engineering', 'logistics', 'economics'
+      ],
+      focus: tr(
+          'IT, інженерія, транспорт, логістика, менеджмент та економіка',
+          'IT, инженерия, транспорт, логистика, менеджмент и экономика'
+      )
     },
     {
       name: 'Univerzita veterinárskeho lekárstva a farmácie v Košiciach',
+      cityId: 'kosice',
       city: tr('Кошице', 'Кошице'),
       image: 'assets/university-9173.png',
-      aliases: 'UVLF ветеринарний ветеринарный фармація фармация'
+      aliases: 'UVLF ветеринарний ветеринарный фармація фармация',
+      specialties: ['medicine'],
+      focus: tr(
+          'Ветеринарна медицина, фармація',
+          'Ветеринарная медицина, фармация'
+      )
     },
     {
       name: 'Slovenská technická univerzita v Bratislave',
+      cityId: 'bratislava',
       city: tr('Братислава', 'Братислава'),
       image: 'assets/university-9177.png',
-      aliases: 'STU словацький технічний словацкий технический Bratislava'
+      aliases: 'STU словацький технічний словацкий технический',
+      specialties: ['it', 'engineering', 'economics', 'design'],
+      focus: tr(
+          'IT, інженерія, технології, менеджмент, дизайн та архітектура',
+          'IT, инженерия, технологии, менеджмент, дизайн и архитектура'
+      )
     },
     {
       name: 'Univerzita Komenského v Bratislave',
+      cityId: 'bratislava',
       city: tr('Братислава', 'Братислава'),
       image: 'assets/university-9179.png',
-      aliases: 'UK Коменського Коменского Bratislava'
+      aliases: 'UK Коменського Коменского',
+      specialties: ['medicine', 'it', 'economics'],
+      focus: tr(
+          'Медицина, біологія, інформатика, менеджмент та інші напрями',
+          'Медицина, биология, информатика, менеджмент и другие направления'
+      )
     },
     {
       name: 'Ekonomická univerzita v Bratislave',
+      cityId: 'bratislava',
       city: tr('Братислава', 'Братислава'),
       image: 'assets/university-9175.png',
-      aliases: 'EUBA економічний экономический Bratislava'
+      aliases: 'EUBA економічний экономический',
+      specialties: ['it', 'economics'],
+      focus: tr(
+          'Економіка, фінанси, бізнес, менеджмент, економічна інформатика',
+          'Экономика, финансы, бизнес, менеджмент, экономическая информатика'
+      )
     }
   ];
 
   universitySearch = '';
 
-  private normalizeSearch(value: string): string {
-    return value
+  private normalizeSearch(text: string): string {
+    return text
         .toLocaleLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
@@ -407,17 +417,36 @@ export class AppComponent implements OnDestroy {
     );
   }
 
-  // =====================================
+  // ======================================
   // BENEFITS
-  // =====================================
+  // ======================================
 
   benefits = [
     {
+      icon: 'bi bi-patch-check',
+      title: tr('100% гарантія вступу', '100% гарантия поступления'),
+      description: tr(
+          'NewGen Study гарантує успішний вступ відповідно до умов договору. Ми допоможемо підібрати університет, підготувати документи та пройти всі етапи вступу.',
+          'NewGen Study гарантирует успешное поступление в соответствии с условиями договора. Мы поможем выбрать университет, подготовить документы и пройти все этапы поступления.'
+      )
+    },
+    {
+      icon: 'bi bi-headset',
+      title: tr(
+          'Підтримка протягом усього навчання',
+          'Поддержка на протяжении всего обучения'
+      ),
+      description: tr(
+          'Ми залишаємося на зв’язку зі студентами протягом навчання у Словаччині та допомагаємо з питаннями, які виникають.',
+          'Мы остаёмся на связи со студентами на протяжении обучения в Словакии и помогаем с возникающими вопросами.'
+      )
+    },
+    {
       icon: 'bi bi-mortarboard',
-      title: tr('Безоплатне навчання', 'Бесплатное обучение'),
+      title: tr('Безкоштовне навчання', 'Бесплатное обучение'),
       description: tr(
           'Навчання словацькою мовою на відповідних денних програмах державних університетів за встановлених умов безкоштовне.',
-          'Обучение на словацком языке на соответствующих очных программах государственных университетов при установленных условиях бесплатное.'
+          'Обучение на словацком языке на соответствующих дневных программах государственных университетов при установленных условиях бесплатное.'
       )
     },
     {
@@ -427,24 +456,24 @@ export class AppComponent implements OnDestroy {
           'Диплом европейского образца'
       ),
       description: tr(
-          'Словацькі університети працюють у європейському просторі вищої освіти, що відкриває можливості для подальшого навчання та кар’єри.',
-          'Словацкие университеты работают в европейском пространстве высшего образования, что открывает возможности для дальнейшей учёбы и карьеры.'
+          'Словацькі університети входять до європейського простору вищої освіти, що відкриває можливості для навчання та кар’єри.',
+          'Словацкие университеты входят в европейское пространство высшего образования, открывая возможности для учёбы и карьеры.'
       )
     },
     {
       icon: 'bi bi-airplane',
       title: tr('Подорожі Європою', 'Путешествия по Европе'),
       description: tr(
-          'Студентське життя можна поєднувати з подорожами країнами Шенгенської зони за наявності необхідних документів.',
-          'Студенческую жизнь можно совмещать с путешествиями по Шенгенской зоне при наличии необходимых документов.'
+          'За наявності необхідних документів студенти можуть подорожувати країнами Шенгенської зони.',
+          'При наличии необходимых документов студенты могут путешествовать по странам Шенгенской зоны.'
       )
     },
     {
       icon: 'bi bi-people',
       title: tr('Програма Erasmus+', 'Программа Erasmus+'),
       description: tr(
-          'Багато університетів пропонують міжнародні обміни та стажування.',
-          'Многие университеты предлагают международные обмены и стажировки.'
+          'Багато університетів пропонують студентські обміни та міжнародні стажування.',
+          'Многие университеты предлагают студенческие обмены и международные стажировки.'
       )
     },
     {
@@ -462,29 +491,25 @@ export class AppComponent implements OnDestroy {
       icon: 'bi bi-shield-check',
       title: tr('Безпечна країна', 'Безопасная страна'),
       description: tr(
-          'Словаччина пропонує відносно безпечне й комфортне середовище для навчання, адаптації та студентського життя.',
-          'Словакия предлагает относительно безопасную и комфортную среду для учёбы, адаптации и студенческой жизни.'
+          'Словаччина пропонує відносно безпечне та комфортне середовище для студентського життя.',
+          'Словакия предлагает относительно безопасную и комфортную среду для студенческой жизни.'
       )
     }
   ];
-
-  // =====================================
-  // WHY NEWGEN
-  // =====================================
 
   trustReasons = [
     {
       title: tr('Індивідуальний підбір', 'Индивидуальный подбор'),
       description: tr(
-          'Враховуємо інтереси, спеціальність, місто та побажання майбутнього студента.',
-          'Учитываем интересы, специальность, город и пожелания будущего студента.'
+          'Підбираємо університети відповідно до інтересів, міста та побажань студента.',
+          'Подбираем университеты с учётом интересов, города и пожеланий студента.'
       )
     },
     {
       title: tr('Підготовка документів', 'Подготовка документов'),
       description: tr(
-          'Допомагаємо з перекладами, мотиваційним листом, біографією та заявками.',
-          'Помогаем с переводами, мотивационным письмом, биографией и заявками.'
+          'Допомагаємо з перекладами, мотиваційними листами та заявками.',
+          'Помогаем с переводами, мотивационными письмами и заявлениями.'
       )
     },
     {
@@ -493,74 +518,34 @@ export class AppComponent implements OnDestroy {
           'Общение с университетом'
       ),
       description: tr(
-          'Ведемо спілкування з навчальним закладом від імені студента.',
-          'Ведём общение с учебным заведением от имени студента.'
-      )
-    },
-    {
-      title: tr('Підтримка після вступу', 'Поддержка после поступления'),
-      description: tr(
-          'Допомагаємо з гуртожитком і додатковими питаннями відповідно до пакета.',
-          'Помогаем с общежитием и дополнительными вопросами согласно пакету.'
-      )
-    }
-  ];
-
-  // =====================================
-  // STEPS
-  // =====================================
-
-  steps = [
-    {
-      title: tr('Підбір університету', 'Подбор университета'),
-      description: tr(
-          'Вибір навчального закладу відповідно до побажань студента.',
-          'Выбор учебного заведения согласно пожеланиям студента.'
-      )
-    },
-    {
-      title: tr('Підготовка документів', 'Подготовка документов'),
-      description: tr(
-          'Переклади, мотиваційний лист і біографія словацькою мовою.',
-          'Переводы, мотивационное письмо и биография на словацком языке.'
-      )
-    },
-    {
-      title: tr('Подача заявок', 'Подача заявок'),
-      description: tr(
-          'Формування та подача документів до університету.',
-          'Формирование и подача документов в университет.'
-      )
-    },
-    {
-      title: tr(
-          'Комунікація з університетом',
-          'Общение с университетом'
-      ),
-      description: tr(
-          'Спілкування з університетом від імені студента.',
-          'Общение с университетом от имени студента.'
-      )
-    },
-    {
-      title: tr('Зарахування', 'Зачисление'),
-      description: tr(
-          'Отримання рішення університету та реєстрація студентського кабінету.',
-          'Получение решения университета и регистрация кабинета студента.'
+          'Організовуємо спілкування з університетом від імені студента.',
+          'Организуем общение с университетом от имени студента.'
       )
     },
     {
       title: tr('Подальший супровід', 'Дальнейшее сопровождение'),
       description: tr(
-          'Допомога з гуртожитком та іншими питаннями залежно від пакета.',
-          'Помощь с общежитием и другими вопросами в зависимости от пакета.'
+          'Допомагаємо з організаційними питаннями після вступу.',
+          'Помогаем с организационными вопросами после поступления.'
       )
     }
   ];
 
-  // =====================================
+  steps = [
+    tr('Підбір університету', 'Подбор университета'),
+    tr('Підготовка документів', 'Подготовка документов'),
+    tr('Подача заявок', 'Подача заявок'),
+    tr(
+        'Комунікація з університетом',
+        'Общение с университетом'
+    ),
+    tr('Зарахування', 'Зачисление'),
+    tr('Подальший супровід', 'Дальнейшее сопровождение')
+  ];
+
+  // ======================================
   // SERVICES
-  // =====================================
+  // ======================================
 
   services: Localized[] = [
     tr('Підбір університету', 'Подбор университета'),
@@ -626,10 +611,7 @@ export class AppComponent implements OnDestroy {
         'Квиток на поїзд по Словаччині до вибраного міста',
         'Билет на поезд по Словакии до выбранного города'
     ),
-    tr(
-        'Зустріч студента на вокзалі',
-        'Встреча студента на вокзале'
-    )
+    tr('Зустріч студента на вокзалі', 'Встреча студента на вокзале')
   ];
 
   packages = [
@@ -637,7 +619,7 @@ export class AppComponent implements OnDestroy {
       name: tr('Економ', 'Эконом'),
       price: 890,
       applications: 1,
-      included: 10,
+      included: 11,
       featured: false
     },
     {
@@ -656,40 +638,79 @@ export class AppComponent implements OnDestroy {
     }
   ];
 
-  hasService(serviceIndex: number, packageIndex: number): boolean {
+  hasService(
+      serviceIndex: number,
+      packageIndex: number
+  ): boolean {
     return serviceIndex < this.packages[packageIndex].included;
   }
 
-  // =====================================
-  // STUDY DIRECTIONS
-  // =====================================
+  selectedPackageName = '';
+  managerRequestVisible = false;
 
-  studyDirections: Localized[] = [
-    tr('IT та програмування', 'IT и программирование'),
-    tr('Інженерія та архітектура', 'Инженерия и архитектура'),
-    tr('Медицина та біологія', 'Медицина и биология'),
-    tr('Економіка та бізнес', 'Экономика и бизнес'),
-    tr('Гуманітарні науки', 'Гуманитарные науки'),
-    tr('Інші спеціальності', 'Другие специальности')
-  ];
+  selectPackage(pack: { price: number }): void {
+    const names: Record<number, string> = {
+      890: 'Економ',
+      1190: 'Комфорт',
+      1290: 'Преміум'
+    };
 
-  // =====================================
+    this.selectedPackageName = names[pack.price] ?? '';
+    this.managerRequestVisible = false;
+
+    this.changeTab('contact');
+  }
+
+  // ======================================
   // QUIZ
-  // =====================================
+  // ======================================
 
-  slovakCities: Localized[] = [
-    tr('Банська Бистриця', 'Банска-Бистрица'),
-    tr('Братислава', 'Братислава'),
-    tr('Жиліна', 'Жилина'),
-    tr('Кошице', 'Кошице'),
-    tr('Нітра', 'Нитра'),
-    tr('Попрад', 'Попрад'),
-    tr('Пряшів', 'Прешов'),
-    tr('Тренчин', 'Тренчин'),
-    tr('Трнава', 'Трнава')
+  studyDirections: QuizOption[] = [
+    {
+      value: 'medicine',
+      title: tr(
+          '🧬 Медицина / біологія / здоров’я',
+          '🧬 Медицина / биология / здоровье'
+      )
+    },
+    {
+      value: 'it',
+      title: tr(
+          '💻 IT / програмування',
+          '💻 IT / программирование'
+      )
+    },
+    {
+      value: 'engineering',
+      title: tr(
+          '🏗️ Інженерія / техніка',
+          '🏗️ Инженерия / техника'
+      )
+    },
+    {
+      value: 'logistics',
+      title: tr(
+          '💼 Менеджмент / логістика / доставка',
+          '💼 Менеджмент / логистика / доставка'
+      )
+    },
+    {
+      value: 'economics',
+      title: tr(
+          '💼 Економіка / менеджмент',
+          '💼 Экономика / менеджмент'
+      )
+    },
+    {
+      value: 'design',
+      title: tr(
+          '🎨 Дизайн / архітектура',
+          '🎨 Дизайн / архитектура'
+      )
+    }
   ];
 
-  quizQuestions = [
+  quizQuestions: QuizQuestion[] = [
     {
       id: 'specialty',
       title: tr(
@@ -697,12 +718,14 @@ export class AppComponent implements OnDestroy {
           'Какая специальность твоя мечта?'
       ),
       options: [
-        { value: 'it', title: tr('IT та програмування', 'IT и программирование') },
-        { value: 'engineering', title: tr('Інженерія та архітектура', 'Инженерия и архитектура') },
-        { value: 'medicine', title: tr('Медицина та біологія', 'Медицина и биология') },
-        { value: 'business', title: tr('Економіка та бізнес', 'Экономика и бизнес') },
-        { value: 'humanities', title: tr('Гуманітарні науки', 'Гуманитарные науки') },
-        { value: 'unsure', title: tr('Ще не визначився/визначилась', 'Ещё не определился/определилась') }
+        ...this.studyDirections,
+        {
+          value: 'other',
+          title: tr(
+              'Інше / немає у списку',
+              'Другое / нет в списке'
+          )
+        }
       ]
     },
     {
@@ -711,7 +734,27 @@ export class AppComponent implements OnDestroy {
           'У якому місті плануєш навчатися?',
           'В каком городе планируешь учиться?'
       ),
-      options: []
+      options: [
+        { value: 'kosice', title: tr('Кошице', 'Кошице') },
+        { value: 'bratislava', title: tr('Братислава', 'Братислава') },
+        { value: 'zilina', title: tr('Жиліна', 'Жилина') },
+        { value: 'nitra', title: tr('Нітра', 'Нитра') },
+        { value: 'trnava', title: tr('Трнава', 'Трнава') },
+        { value: 'presov', title: tr('Пряшів', 'Прешов') },
+        { value: 'trencin', title: tr('Тренчин', 'Тренчин') },
+        {
+          value: 'banska',
+          title: tr('Банська Бистриця', 'Банска-Бистрица')
+        },
+        { value: 'poprad', title: tr('Попрад', 'Попрад') },
+        {
+          value: 'any',
+          title: tr(
+              'Місто не має значення',
+              'Город не имеет значения'
+          )
+        }
+      ]
     },
     {
       id: 'language',
@@ -720,10 +763,22 @@ export class AppComponent implements OnDestroy {
           'Какой у тебя уровень словацкого языка?'
       ),
       options: [
-        { value: 'a0', title: tr('A0 — не знаю словацької', 'A0 — не знаю словацкий') },
-        { value: 'a1', title: tr('A1–A2 — початковий', 'A1–A2 — начальный') },
-        { value: 'b1', title: tr('B1–B2 — середній', 'B1–B2 — средний') },
-        { value: 'c1', title: tr('C1–C2 — високий', 'C1–C2 — высокий') }
+        {
+          value: 'a0',
+          title: tr('A0 — не знаю словацької', 'A0 — не знаю словацкий')
+        },
+        {
+          value: 'a1',
+          title: tr('A1–A2 — початковий', 'A1–A2 — начальный')
+        },
+        {
+          value: 'b1',
+          title: tr('B1–B2 — середній', 'B1–B2 — средний')
+        },
+        {
+          value: 'c1',
+          title: tr('C1–C2 — високий', 'C1–C2 — высокий')
+        }
       ]
     },
     {
@@ -733,30 +788,183 @@ export class AppComponent implements OnDestroy {
           'Готов/готова сдавать вступительные экзамены?'
       ),
       options: [
-        { value: 'yes', title: tr('Так, готовий/готова', 'Да, готов/готова') },
-        { value: 'no', title: tr('Бажано вступити без іспитів', 'Желательно поступить без экзаменов') },
-        { value: 'either', title: tr('Розгляну обидва варіанти', 'Рассмотрю оба варианта') }
+        {
+          value: 'yes',
+          title: tr('Так, готовий/готова', 'Да, готов/готова')
+        },
+        {
+          value: 'no',
+          title: tr(
+              'Бажано вступити без іспитів',
+              'Желательно поступить без экзаменов'
+          )
+        },
+        {
+          value: 'either',
+          title: tr(
+              'Розгляну обидва варіанти',
+              'Рассмотрю оба варианта'
+          )
+        }
       ]
     }
   ];
 
   quizAnswers: Record<string, string> = {};
+  customSpecialty = '';
+  quizHasResults = false;
+  quizTriedSubmit = false;
 
-  updateQuizCity(value: string): void {
-    this.quizAnswers['city'] = value;
+  selectQuizAnswer(id: string, value: string): void {
+    this.quizAnswers[id] = value;
+    this.quizHasResults = false;
+    this.quizTriedSubmit = false;
   }
 
-  selectQuizAnswer(questionId: string, value: string): void {
-    this.quizAnswers[questionId] = value;
+  isQuizSelected(id: string, value: string): boolean {
+    return this.quizAnswers[id] === value;
   }
 
-  isQuizSelected(questionId: string, value: string): boolean {
-    return this.quizAnswers[questionId] === value;
+  updateCustomSpecialty(value: string): void {
+    this.customSpecialty = value;
+    this.quizHasResults = false;
   }
 
-  // =====================================
+  get canSubmitQuiz(): boolean {
+    return this.quizQuestions.every(
+        question => !!this.quizAnswers[question.id]
+    ) && (
+        this.quizAnswers['specialty'] !== 'other' ||
+        this.customSpecialty.trim().length > 1
+    );
+  }
+
+  submitQuiz(): void {
+    this.quizTriedSubmit = true;
+
+    if (!this.canSubmitQuiz) return;
+
+    this.quizHasResults = true;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  editQuiz(): void {
+    this.quizHasResults = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  private getMatch(): {
+    list: University[];
+    mode: MatchMode;
+  } {
+    const specialty =
+        this.quizAnswers['specialty'] as Specialty | undefined;
+
+    const city = this.quizAnswers['city'];
+
+    if (specialty === 'other') {
+      const cityList = this.universities.filter(
+          u => city === 'any' || u.cityId === city
+      );
+
+      return cityList.length
+          ? { list: cityList, mode: 'explore' }
+          : {
+            list: this.universities,
+            mode: 'exploreOtherCity'
+          };
+    }
+
+    const bySpecialty = this.universities.filter(
+        u => !!specialty && u.specialties.includes(specialty)
+    );
+
+    const exact = bySpecialty.filter(
+        u => city === 'any' || u.cityId === city
+    );
+
+    return exact.length
+        ? { list: exact, mode: 'exact' }
+        : { list: bySpecialty, mode: 'alternative' };
+  }
+
+  get matchedUniversities(): University[] {
+    return this.quizHasResults ? this.getMatch().list : [];
+  }
+
+  get matchDescription(): Localized {
+    const descriptions: Record<MatchMode, Localized> = {
+      exact: tr(
+          'Ми знайшли університети, які відповідають обраному місту та загальному напряму навчання.',
+          'Мы нашли университеты, соответствующие выбранному городу и общему направлению обучения.'
+      ),
+      alternative: tr(
+          'У вибраному місті відповідних варіантів немає в нашому каталозі. Ось альтернативи в інших містах.',
+          'В выбранном городе подходящих вариантов нет в нашем каталоге. Вот альтернативы в других городах.'
+      ),
+      explore: tr(
+          'Ось університети вибраного міста. Для уточнення конкретної спеціальності звернися до менеджера.',
+          'Вот университеты выбранного города. Для уточнения конкретной специальности обратись к менеджеру.'
+      ),
+      exploreOtherCity: tr(
+          'У нашому каталозі поки немає університетів у вибраному місті. Ось інші варіанти.',
+          'В нашем каталоге пока нет университетов в выбранном городе. Вот другие варианты.'
+      )
+    };
+
+    return descriptions[this.getMatch().mode];
+  }
+
+  private getQuizAnswer(id: string): string {
+    if (
+        id === 'specialty' &&
+        this.quizAnswers[id] === 'other'
+    ) {
+      return this.customSpecialty.trim();
+    }
+
+    const question = this.quizQuestions.find(q => q.id === id);
+    const option = question?.options.find(
+        o => o.value === this.quizAnswers[id]
+    );
+
+    return option ? this.l(option.title) : '—';
+  }
+
+  get managerRequest(): string {
+    const labels = this.language === 'uk'
+        ? ['Спеціальність', 'Місто', 'Мова', 'Іспити']
+        : ['Специальность', 'Город', 'Язык', 'Экзамены'];
+
+    const keys = ['specialty', 'city', 'language', 'exams'];
+
+    const greeting = this.language === 'uk'
+        ? 'Вітаю! Хочу отримати індивідуальний підбір університету.'
+        : 'Здравствуйте! Хочу получить индивидуальный подбор университета.';
+
+    return [
+      greeting,
+      '',
+      ...keys.map(
+          (key, i) => `${labels[i]}: ${this.getQuizAnswer(key)}`
+      ),
+      '',
+      this.language === 'uk'
+          ? 'Знайдені університети:'
+          : 'Найденные университеты:',
+      ...this.matchedUniversities.map(u => `• ${u.name}`)
+    ].join('\n');
+  }
+
+  contactManager(): void {
+    this.selectedPackageName = '';
+    this.managerRequestVisible = true;
+    this.changeTab('contact');
+  }
+
+  // ======================================
   // FAQ
-  // =====================================
+  // ======================================
 
   faqItems = [
     {
@@ -765,18 +973,8 @@ export class AppComponent implements OnDestroy {
           'Действительно ли обучение в Словакии бесплатное?'
       ),
       answer: tr(
-          'Навчання словацькою мовою на відповідних денних програмах публічних і державних університетів зазвичай є безоплатним у межах стандартної тривалості.',
-          'Обучение на словацком языке на соответствующих очных программах публичных и государственных университетов обычно бесплатное в пределах стандартного срока.'
-      )
-    },
-    {
-      question: tr(
-          'Чи допоможе NewGen Study вступити?',
-          'Поможет ли NewGen Study поступить?'
-      ),
-      answer: tr(
-          'Так! Ми допоможемо обрати відповідні університети, підготувати документи та подати заявки. Альтернативні варіанти допоможуть збільшити шанси на успішний вступ.',
-          'Да! Мы поможем выбрать подходящие университеты, подготовить документы и подать заявки. Альтернативные варианты помогут повысить шансы на поступление.'
+          'Навчання словацькою мовою на відповідних денних програмах публічних і державних університетів зазвичай безкоштовне в межах стандартної тривалості.',
+          'Обучение на словацком языке на соответствующих дневных программах публичных и государственных университетов обычно бесплатное в пределах стандартного срока.'
       )
     },
     {
@@ -785,70 +983,50 @@ export class AppComponent implements OnDestroy {
           'Можно ли поступить без экзаменов?'
       ),
       answer: tr(
-          'Так, деякі програми не вимагають вступних іспитів. Умови залежать від конкретного факультету.',
-          'Да, некоторые программы не требуют вступительных экзаменов. Условия зависят от конкретного факультета.'
+          'Так, деякі програми не вимагають вступних іспитів. Умови залежать від університету та факультету.',
+          'Да, некоторые программы не требуют вступительных экзаменов. Условия зависят от университета и факультета.'
       )
     },
     {
       question: tr(
-          'Чи складно вивчити словацьку мову?',
-          'Сложно ли выучить словацкий язык?'
+          'Чи допомагаєте ви з вивченням мови?',
+          'Помогаете ли вы с изучением языка?'
       ),
       answer: tr(
-          'Словацька схожа на українську, тому частина слів буде знайомою. NewGen Study допоможе з мовною підготовкою до навчання.',
-          'Словацкий похож на украинский, поэтому часть слов будет знакомой. NewGen Study поможет с языковой подготовкой к учёбе.'
+          'Так, NewGen Study допомагає зі словацькою мовою та підготовкою до навчання.',
+          'Да, NewGen Study помогает со словацким языком и подготовкой к учёбе.'
       )
     },
     {
       question: tr(
           'Чи допомагаєте з гуртожитком?',
-          'Помогаете ли с общежитием?'
+          'Помогаете с общежитием?'
       ),
       answer: tr(
-          'Так, допомога з подачею заяви входить до пакетів. Надання місця залежить від правил і можливостей університету.',
-          'Да, помощь с подачей заявления входит в пакеты. Предоставление места зависит от правил и возможностей университета.'
+          'Так, ми допомагаємо з подачею заяви. Надання місця залежить від університету.',
+          'Да, мы помогаем с подачей заявления. Предоставление места зависит от университета.'
       )
     },
     {
       question: tr(
-          'Чи можна подорожувати Європою?',
-          'Можно ли путешествовать по Европе?'
+          'Коли краще починати підготовку?',
+          'Когда лучше начинать подготовку?'
       ),
       answer: tr(
-          'Так, за наявності відповідних документів і дотримання правил перебування в Шенгенській зоні.',
-          'Да, при наличии соответствующих документов и соблюдении правил пребывания в Шенгенской зоне.'
-      )
-    },
-    {
-      question: tr(
-          'Чи визнається словацький диплом у Європі?',
-          'Признаётся ли словацкий диплом в Европе?'
-      ),
-      answer: tr(
-          'Словацька система освіти належить до європейського простору вищої освіти. Для деяких професій може знадобитися окрема процедура визнання.',
-          'Словацкая система образования относится к европейскому пространству высшего образования. Для некоторых профессий может потребоваться отдельная процедура признания.'
-      )
-    },
-    {
-      question: tr(
-          'Коли починати підготовку?',
-          'Когда начинать подготовку?'
-      ),
-      answer: tr(
-          'Якомога раніше, щоб встигнути обрати спеціальність, підготувати переклади та подати документи в установлені строки.',
-          'Как можно раньше, чтобы успеть выбрать специальность, подготовить переводы и подать документы в установленные сроки.'
+          'Якомога раніше, щоб встигнути підготувати документи й подати заявки вчасно.',
+          'Как можно раньше, чтобы успеть подготовить документы и вовремя подать заявки.'
       )
     }
   ];
 
-  // =====================================
+  // ======================================
   // REVIEWS
-  // =====================================
+  // ======================================
 
   reviews: Review[] = [
     {
-      name: tr('Маргарита', 'Маргарита'),
-      university: tr('UPJŠ', 'UPJŠ'),
+      name: tr('Мама студентки', 'Мама студентки'),
+      university: 'UPJŠ',
       text: tr(
           `Добрий день, Олександре!
 
@@ -865,18 +1043,18 @@ export class AppComponent implements OnDestroy {
 
 Без Вашей помощи поступление казалось для нас совершенно нереальным. Вы сделали всё возможное, чтобы мечта дочери стала реальностью.
 
-Отдельно хотим поблагодарить и Маргариту за уроки словацкого языка. Теперь дочь может уверенно общаться, использует язык и не боится на нём говорить.
+Отдельно хотим поблагодарить Маргариту за уроки словацкого языка. Теперь дочь может уверенно общаться и не боится говорить.
 
-Будем советовать Вас всем нашим знакомым. Как приятно, что Вы порядочный, ответственный, добрый человек, который помог нам!`
+Будем рекомендовать Вас всем нашим знакомым!`
       )
     },
     {
       name: tr('Ангеліна', 'Ангелина'),
-      university: tr('Truni', 'Truni'),
+      university: 'Truni',
       text: tr(
-          `Вітаю! Окремо хотіла б висловити вдячність Вашій компанії, Олександре, за таку колосальну допомогу та працю! Рекомендую вас усім, чесно кажучи.
+          `Вітаю! Окремо хотіла б висловити вдячність Вашій компанії, Олександре, за таку колосальну допомогу та працю! Рекомендую вас усім.
 
-На той момент, коли ми до вас звернулися, ми були у відчаї. Ваш менеджер нас заспокоїв і розвіяв усі сумніви ще з першого дня, а викладачка словацької вселила надію на те, що все вийде.
+Коли ми до вас звернулися, ми були у відчаї. Ваш менеджер нас заспокоїв і розвіяв сумніви ще з першого дня, а викладачка словацької вселила надію на те, що все вийде.
 
 Ніколи не забуду враження після Вашої екскурсії містом: приємні люди, затишна атмосфера та маленькі подаруночки запали мені в серце :)
 
@@ -891,18 +1069,21 @@ export class AppComponent implements OnDestroy {
       )
     },
     {
-      name: tr('Мама студента Максима', 'Мама студента Максима'),
-      university: tr('TUKE', 'TUKE'),
+      name: tr(
+          'Мама студента Максима',
+          'Мама студента Максима'
+      ),
+      university: 'TUKE',
       text: tr(
           `Хочу висловити величезну вдячність Олександру за допомогу зі вступом мого сина до університету Словаччини!
 
-Із самого початку було зрозуміло, що людина справді розуміється на своїй справі. Усі питання вирішувалися чітко, своєчасно та без зайвих складнощів. Особливо приємно, що вартість послуг цілком доступна, а якість супроводу нічим не поступається великим освітнім агентствам.
+Із самого початку було зрозуміло, що людина справді розуміється на своїй справі. Усі питання вирішувалися чітко, своєчасно та без зайвих складнощів.
 
 У нас була трохи нестандартна ситуація, оскільки син вступав після коледжу, а не після школи. Але Олександр у всьому розібрався, допоміг із документами та успішно довів справу до вступу.
 
 Окремо хочу зазначити, що допомога не закінчилася на етапі зарахування. Олександр продовжує залишатися на зв’язку, відповідає на запитання й допомагає з подальшими організаційними моментами.
 
-Дуже рада, що ми звернулися саме до нього. Можу сміливо рекомендувати Олександра всім, хто планує вступати до Словаччини. Відповідальна, порядна людина, яка знає свою справу і справді зацікавлена в результаті!`,
+Можу сміливо рекомендувати Олександра всім, хто планує вступати до Словаччини!`,
           `Хочу выразить огромную благодарность Александру за помощь с поступлением моего сына в университет Словакии!
 
 С самого начала было понятно, что человек действительно разбирается в своём деле. Все вопросы решались чётко, своевременно и без лишних сложностей. Особенно приятно, что стоимость услуг вполне доступная, а качество сопровождения ничем не уступает крупным образовательным агентствам.
@@ -933,28 +1114,29 @@ export class AppComponent implements OnDestroy {
     return this.isReviewPaused || this.isStoryHeld;
   }
 
-  // Longer reviews are displayed for longer.
   get reviewInterval(): number {
     const words = this.l(this.activeReview.text)
-        .trim()
-        .split(/\s+/u)
+        .split(/\s+/)
         .filter(Boolean).length;
 
-    return Math.max(16000, Math.min(90000, 4500 + words * 360));
+    return Math.max(
+        16000,
+        Math.min(90000, 4500 + words * 360)
+    );
   }
 
   storyProgress(index: number): number {
     if (index < this.reviewIndex) return 100;
     if (index > this.reviewIndex) return 0;
 
-    return Math.max(
-        0,
-        Math.min(100, this.storyElapsedMs / this.reviewInterval * 100)
+    return Math.min(
+        100,
+        this.storyElapsedMs / this.reviewInterval * 100
     );
   }
 
   private stopReviewTimer(): void {
-    if (this.reviewTimer !== null) {
+    if (this.reviewTimer) {
       clearInterval(this.reviewTimer);
       this.reviewTimer = null;
     }
@@ -968,9 +1150,10 @@ export class AppComponent implements OnDestroy {
   }
 
   private updateStoryClock(): void {
-    if (this.activeTab !== 'reviews' || this.storyIsStopped) {
-      return;
-    }
+    if (
+        this.activeTab !== 'reviews' ||
+        this.storyIsStopped
+    ) return;
 
     const now = Date.now();
 
@@ -979,13 +1162,12 @@ export class AppComponent implements OnDestroy {
       return;
     }
 
-    const delta = Math.max(
+    this.storyElapsedMs += Math.max(
         0,
         Math.min(now - this.storyLastTick, 250)
     );
 
     this.storyLastTick = now;
-    this.storyElapsedMs += delta;
 
     if (this.storyElapsedMs >= this.reviewInterval) {
       this.advanceReview(1);
@@ -1000,17 +1182,15 @@ export class AppComponent implements OnDestroy {
 
     if (
         this.activeTab !== 'reviews' ||
-        this.storyIsStopped ||
-        this.reviews.length < 2
-    ) {
-      return;
-    }
+        this.storyIsStopped
+    ) return;
 
     this.storyLastTick = Date.now();
 
-    this.reviewTimer = setInterval(() => {
-      this.updateStoryClock();
-    }, 50);
+    this.reviewTimer = setInterval(
+        () => this.updateStoryClock(),
+        50
+    );
   }
 
   private advanceReview(direction: 1 | -1): void {
@@ -1036,22 +1216,16 @@ export class AppComponent implements OnDestroy {
   }
 
   showReview(index: number): void {
-    if (index < 0 || index >= this.reviews.length) return;
-
     this.stopReviewTimer();
     this.reviewIndex = index;
     this.storyElapsedMs = 0;
-
     this.resetStoryScroll();
+
     this.cdr.markForCheck();
     this.startReviewTimer();
   }
 
   toggleReviewPlayback(): void {
-    if (!this.storyIsStopped) {
-      this.updateStoryClock();
-    }
-
     this.isReviewPaused = !this.isReviewPaused;
 
     if (this.isReviewPaused) {
@@ -1061,23 +1235,16 @@ export class AppComponent implements OnDestroy {
     }
   }
 
-  // =====================================
-  // MOUSE / TOUCH INTERACTION
-  // =====================================
-
   onStoryPointerDown(event: PointerEvent): void {
-    if (event.pointerType === 'mouse' && event.button !== 0) {
-      return;
-    }
-
-    const target = event.target;
+    if (
+        event.pointerType === 'mouse' &&
+        event.button !== 0
+    ) return;
 
     if (
-        target instanceof Element &&
-        target.closest('button')
-    ) {
-      return;
-    }
+        event.target instanceof Element &&
+        event.target.closest('button')
+    ) return;
 
     this.activeStoryPress = {
       pointerId: event.pointerId,
@@ -1085,10 +1252,6 @@ export class AppComponent implements OnDestroy {
       y: event.clientY,
       timestamp: Date.now()
     };
-
-    if (!this.storyIsStopped) {
-      this.updateStoryClock();
-    }
 
     this.isStoryHeld = true;
     this.stopReviewTimer();
@@ -1100,7 +1263,7 @@ export class AppComponent implements OnDestroy {
     if (!press || press.pointerId !== event.pointerId) return;
 
     const duration = Date.now() - press.timestamp;
-    const distance = Math.hypot(
+    const moved = Math.hypot(
         event.clientX - press.x,
         event.clientY - press.y
     );
@@ -1108,25 +1271,25 @@ export class AppComponent implements OnDestroy {
     this.activeStoryPress = null;
     this.isStoryHeld = false;
 
-    if (duration < 260 && distance < 16) {
-      const element = event.currentTarget as HTMLElement;
-      const rect = element.getBoundingClientRect();
+    if (duration < 260 && moved < 16) {
+      const rect =
+          (event.currentTarget as HTMLElement)
+              .getBoundingClientRect();
 
-      if (event.clientX - rect.left < rect.width * 0.35) {
+      if (event.clientX < rect.left + rect.width * 0.35) {
         this.previousReview();
       } else {
         this.nextReview();
       }
-      return;
+    } else {
+      this.startReviewTimer();
     }
-
-    this.startReviewTimer();
   }
 
   onStoryPointerCancel(event: PointerEvent): void {
-    if (this.activeStoryPress?.pointerId !== event.pointerId) {
-      return;
-    }
+    if (
+        this.activeStoryPress?.pointerId !== event.pointerId
+    ) return;
 
     this.activeStoryPress = null;
     this.isStoryHeld = false;
@@ -1145,18 +1308,19 @@ export class AppComponent implements OnDestroy {
 
   onStoryKeyDown(event: KeyboardEvent): void {
     if (event.key === 'ArrowLeft') {
-      event.preventDefault();
       this.previousReview();
+      event.preventDefault();
     } else if (event.key === 'ArrowRight') {
-      event.preventDefault();
       this.nextReview();
-    } else if (event.key === ' ') {
       event.preventDefault();
+    } else if (event.key === ' ') {
       this.toggleReviewPlayback();
+      event.preventDefault();
     }
   }
 
   ngOnDestroy(): void {
     this.stopReviewTimer();
+    this.routeSubscription.unsubscribe();
   }
 }

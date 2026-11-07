@@ -1,23 +1,20 @@
 
-<!-- =====================================
+<!-- ======================================
      HEADER
-===================================== -->
+====================================== -->
 
 <header class="site-header">
     <div class="container header-inner">
 
         <button
-                class="brand"
                 type="button"
+                class="brand"
                 aria-label="NewGen Study"
                 (click)="changeTab('home')">
-
             <img src="assets/logo.png" alt="NewGen Study Agency">
-
         </button>
 
         <nav class="navigation" aria-label="Навігація">
-
             @for (tab of tabs; track tab.id) {
                 <button
                         type="button"
@@ -26,11 +23,9 @@
                     {{ l(tab.name) }}
                 </button>
             }
-
         </nav>
 
         <div class="language-switch">
-
             <button
                     type="button"
                     [class.active]="language === 'uk'"
@@ -44,22 +39,19 @@
                     (click)="setLanguage('ru')">
                 РУС
             </button>
-
         </div>
 
     </div>
 </header>
 
 
-<!-- =====================================
-     PAGE HERO
-===================================== -->
+<!-- ======================================
+     PAGE TITLE
+====================================== -->
 
 @if (activeTab !== 'home') {
-
     <section class="page-hero">
-        <div class="container page-hero-content">
-
+        <div class="container">
       <span class="eyebrow">
         {{ pageHeaders[activeTab].eyebrow }}
       </span>
@@ -70,27 +62,28 @@
             </h1>
 
             <p>{{ l(pageHeaders[activeTab].description) }}</p>
-
         </div>
     </section>
-
 }
 
 
+<!-- ======================================
+     CONTENT
+====================================== -->
+
 <main>
+
     @switch (activeTab) {
 
-        <!-- =================================
-             HOME
-        ================================= -->
+        <!-- HOME -->
 
         @case ('home') {
 
             <section class="hero">
-                <div class="container hero-inner">
+                <div class="container">
 
           <span class="eyebrow">
-            {{ pageHeaders.home.eyebrow }}
+            NEWGEN STUDY AGENCY
           </span>
 
                     <h1>
@@ -101,46 +94,55 @@
                     <p>{{ l(pageHeaders.home.description) }}</p>
 
                     <div class="hero-actions">
-
                         <button
                                 type="button"
                                 class="button button-gold"
                                 (click)="changeTab('universities')">
-                            {{ t('viewUniversities') }}
+                            {{ l({uk:'Переглянути університети',ru:'Посмотреть университеты'}) }}
                         </button>
 
                         <button
                                 type="button"
                                 class="button button-outline"
                                 (click)="changeTab('pricing')">
-                            {{ t('ourPackages') }}
+                            {{ l({uk:'Наші пакети',ru:'Наши пакеты'}) }}
                         </button>
-
                     </div>
 
                 </div>
             </section>
 
 
-            <!-- ABOUT -->
+            <!-- ABOUT PREVIEW -->
 
             <section class="section">
                 <div class="container two-columns">
 
                     <div>
-            <span class="section-label">
-              01 / NEWGEN STUDY
-            </span>
+                        <span class="section-label">01 / NEWGEN STUDY</span>
 
                         <h2>
-                            {{ t('aboutTitle') }}
-                            <em>{{ t('aboutGold') }}</em>
+                            {{ l({uk:'Навчання за кордоном',ru:'Обучение за границей'}) }}
+                            <em>
+                                {{ l({uk:'починається з вибору.',ru:'начинается с выбора.'}) }}
+                            </em>
                         </h2>
                     </div>
 
                     <div class="large-description">
-                        <p>{{ t('aboutDescription1') }}</p>
-                        <p>{{ t('aboutDescription2') }}</p>
+                        <p>
+                            {{ l({
+                            uk:'NewGen Study допомагає українським абітурієнтам вступати до університетів Словаччини.',
+                            ru:'NewGen Study помогает украинским абитуриентам поступать в университеты Словакии.'
+                        }) }}
+                        </p>
+
+                        <p>
+                            {{ l({
+                            uk:'Ми супроводжуємо вибір університету, підготовку та переклад документів, подачу заявок, спілкування з університетами й організаційні питання.',
+                            ru:'Мы сопровождаем выбор университета, подготовку и перевод документов, подачу заявок, общение с университетами и организационные вопросы.'
+                        }) }}
+                        </p>
                     </div>
 
                 </div>
@@ -149,29 +151,35 @@
 
             <!-- BENEFITS -->
 
-            <section class="section education-benefits">
+            <section class="section">
                 <div class="container">
 
                     <div class="section-heading">
             <span class="section-label">
-              02 / {{ t('benefitsLabel') }}
+              02 / {{ l({uk:'ЧОМУ СЛОВАЧЧИНА',ru:'ПОЧЕМУ СЛОВАКИЯ'}) }}
             </span>
 
                         <h2>
-                            {{ t('benefitsTitle') }}
-                            <em>{{ t('benefitsGold') }}</em>
+                            {{ l({uk:'Можливості',ru:'Возможности'}) }}
+                            <em>
+                                {{ l({uk:'для майбутніх студентів.',ru:'для будущих студентов.'}) }}
+                            </em>
                         </h2>
 
-                        <p>{{ t('benefitsDescription') }}</p>
+                        <p>
+                            {{ l({
+                            uk:'Словаччина поєднує доступну європейську освіту, міжнародні можливості та комфортні умови для студентського життя.',
+                            ru:'Словакия объединяет доступное европейское образование, международные возможности и комфортные условия для студенческой жизни.'
+                        }) }}
+                        </p>
                     </div>
 
                     <div class="education-benefits-grid">
-
                         @for (benefit of benefits; track $index; let i = $index) {
                             <article class="education-benefit-card">
 
                 <span class="education-number">
-                  0{{ i + 1 }}
+                  {{ i + 1 < 10 ? '0' : '' }}{{ i + 1 }}
                 </span>
 
                                 <div class="education-icon">
@@ -183,7 +191,6 @@
 
                             </article>
                         }
-
                     </div>
 
                 </div>
@@ -195,19 +202,16 @@
             <section class="section">
                 <div class="container">
 
-                    <div class="section-heading why-heading">
-            <span class="section-label">
-              03 / NEWGEN STUDY
-            </span>
+                    <div class="section-heading">
+                        <span class="section-label">03 / NEWGEN STUDY</span>
 
                         <h2>
-                            {{ t('whyTitle') }}
-                            <em>{{ t('whyGold') }}</em>
+                            {{ l({uk:'Чому варто обрати',ru:'Почему стоит выбрать'}) }}
+                            <em>NewGen Study?</em>
                         </h2>
                     </div>
 
                     <div class="trust-grid">
-
                         @for (reason of trustReasons; track $index; let i = $index) {
                             <article class="trust-card">
 
@@ -220,13 +224,9 @@
                                     <p>{{ l(reason.description) }}</p>
                                 </div>
 
-                                <span class="trust-check">
-                  <i class="bi bi-check-lg"></i>
-                </span>
-
+                                <i class="bi bi-check-circle trust-check"></i>
                             </article>
                         }
-
                     </div>
 
                 </div>
@@ -235,45 +235,56 @@
 
             <!-- GUARANTEE -->
 
-            <section class="section guarantee-section">
+            <section class="section">
                 <div class="container">
 
                     <div class="guarantee-panel">
 
                         <div class="guarantee-content">
-
               <span class="section-label">
-                04 / {{ t('guaranteeLabel') }}
+                04 / {{ l({uk:'ГАРАНТІЇ ТА УМОВИ',ru:'ГАРАНТИИ И УСЛОВИЯ'}) }}
               </span>
 
                             <h2>
-                                {{ t('guaranteeTitle') }}
-                                <em>{{ t('guaranteeGold') }}</em>
+                                {{ l({uk:'Ми допоможемо тобі',ru:'Мы поможем тебе'}) }}
+                                <em>
+                                    {{ l({uk:'вступити до Словаччини.',ru:'поступить в Словакию.'}) }}
+                                </em>
                             </h2>
 
-                            <p>{{ t('guaranteeDescription') }}</p>
+                            <p>
+                                {{ l({
+                                uk:'NewGen Study допоможе пройти шлях до вступу: підбере пріоритетні та альтернативні спеціальності, допоможе підготувати документи та організує подачу заявок.',
+                                ru:'NewGen Study поможет пройти путь к поступлению: подберёт приоритетные и альтернативные специальности, поможет подготовить документы и организует подачу заявок.'
+                            }) }}
+                            </p>
 
                             <button
                                     type="button"
                                     class="button button-gold"
                                     (click)="changeTab('pricing')">
-                                {{ t('ourPackages') }}
+                                {{ l({uk:'Наші пакети',ru:'Наши пакеты'}) }}
                             </button>
-
                         </div>
 
                         <div class="guarantee-highlight">
+                            <div class="guarantee-percentage">100%</div>
 
-                            <div class="guarantee-percentage">
-                                100%
-                            </div>
-
-                            <h3>{{ t('guaranteeHighlight') }}</h3>
+                            <h3>
+                                {{ l({
+                                uk:'100% підтримки під час вступу',
+                                ru:'100% поддержки при поступлении'
+                            }) }}
+                            </h3>
 
                             <div class="guarantee-divider"></div>
 
-                            <p>{{ t('guaranteeNote') }}</p>
-
+                            <p>
+                                {{ l({
+                                uk:'Супровід надається відповідно до умов договору. Остаточне рішення про зарахування ухвалює університет.',
+                                ru:'Сопровождение предоставляется согласно договору. Окончательное решение о зачислении принимает университет.'
+                            }) }}
+                            </p>
                         </div>
 
                     </div>
@@ -293,30 +304,34 @@
             </span>
 
                         <h2>
-                            {{ t('universitiesTitle') }}
-                            <em>{{ t('universitiesGold') }}</em>
+                            {{ l({uk:'Університети',ru:'Университеты'}) }}
+                            <em>{{ l({uk:'Словаччини.',ru:'Словакии.'}) }}</em>
                         </h2>
-
-                        <p>{{ t('universitiesDescription') }}</p>
                     </div>
 
                     <div class="home-universities-grid">
 
-                        @for (uni of universities.slice(0, 3); track uni.name; let i = $index) {
-                            <article class="home-university-card">
+                        @for (uni of universities.slice(0, 3); track uni.name) {
+                            <article class="university-card">
 
-                <span class="card-number">
-                  0{{ i + 1 }}
-                </span>
+                                <img
+                                        class="university-image"
+                                        [src]="uni.image"
+                                        [alt]="uni.name"
+                                        loading="lazy">
 
-                                <span class="city-label">
-                  <i class="bi bi-geo-alt"></i>
-                                    {{ l(uni.city) }}
-                </span>
+                                <div class="university-info">
+                  <span class="city-label">
+                    <i class="bi bi-geo-alt"></i>
+                      {{ l(uni.city) }}
+                  </span>
 
-                                <h3>{{ uni.name }}</h3>
+                                    <h3>{{ uni.name }}</h3>
 
-                                <p>{{ t('universityCaption') }}</p>
+                                    <p>
+                                        {{ l({uk:'Університет Словаччини',ru:'Университет Словакии'}) }}
+                                    </p>
+                                </div>
 
                             </article>
                         }
@@ -328,7 +343,7 @@
                                 type="button"
                                 class="button button-gold"
                                 (click)="changeTab('universities')">
-                            {{ t('viewUniversities') }}
+                            {{ l({uk:'Усі університети',ru:'Все университеты'}) }}
                         </button>
                     </div>
 
@@ -336,7 +351,7 @@
             </section>
 
 
-            <!-- STEPS -->
+            <!-- ADMISSION STEPS -->
 
             <section class="section">
                 <div class="container">
@@ -346,12 +361,13 @@
           </span>
 
                     <h2>
-                        {{ t('stepsTitle') }}
-                        <em>{{ t('stepsGold') }}</em>
+                        {{ l({uk:'Від першої консультації',ru:'От первой консультации'}) }}
+                        <em>
+                            {{ l({uk:'до зарахування.',ru:'до зачисления.'}) }}
+                        </em>
                     </h2>
 
-                    <div class="steps-grid compact-steps">
-
+                    <div class="steps-grid">
                         @for (step of steps; track $index; let i = $index) {
                             <article class="step-card">
 
@@ -359,19 +375,16 @@
                   0{{ i + 1 }}
                 </span>
 
-                                <h3>{{ l(step.title) }}</h3>
-                                <p>{{ l(step.description) }}</p>
-
+                                <h3>{{ l(step) }}</h3>
                             </article>
                         }
-
                     </div>
 
                 </div>
             </section>
 
 
-            <!-- PACKAGES PREVIEW -->
+            <!-- PRICING PREVIEW -->
 
             <section class="section">
                 <div class="container">
@@ -381,11 +394,11 @@
           </span>
 
                     <h2>
-                        {{ t('pricingTitle') }}
-                        <em>{{ t('pricingGold') }}</em>
+                        {{ l({uk:'Пакети',ru:'Пакеты'}) }}
+                        <em>{{ l({uk:'супроводу.',ru:'сопровождения.'}) }}</em>
                     </h2>
 
-                    <div class="pricing-grid pricing-preview">
+                    <div class="pricing-grid">
 
                         @for (pack of packages; track pack.price) {
                             <article
@@ -395,26 +408,22 @@
                                 <span class="price-tag">NEWGEN STUDY</span>
 
                                 <h3>{{ l(pack.name) }}</h3>
-
-                                <div class="price">
-                                    {{ pack.price }} €
-                                </div>
+                                <div class="price">{{ pack.price }} €</div>
 
                                 <p class="price-description">
-                                    {{ t(
-                                    pack.applications === 1
-                                        ? 'applicationsOne'
-                                        : 'applicationsTwo'
-                                ) }}
+                                    {{ l({
+                                    uk:'Кількість заявок до університетів: ',
+                                    ru:'Количество заявок в университеты: '
+                                }) }}
+                                    {{ pack.applications }}
                                 </p>
 
                                 <button
                                         type="button"
                                         class="price-button"
-                                        (click)="changeTab('pricing')">
-                                    {{ t('details') }}
+                                        (click)="selectPackage(pack)">
+                                    {{ l({uk:'Обрати пакет',ru:'Выбрать пакет'}) }}
                                 </button>
-
                             </article>
                         }
 
@@ -426,103 +435,74 @@
 
             <!-- FAQ -->
 
-            <section class="section faq-section">
+            <section class="section">
                 <div class="container faq-layout">
 
-                    <div class="faq-intro">
+                    <div>
                         <span class="section-label">08 / FAQ</span>
 
                         <h2>
-                            {{ t('faqTitle') }}
-                            <em>{{ t('faqGold') }}</em>
+                            {{ l({uk:'Відповіді на',ru:'Ответы на'}) }}
+                            <em>
+                                {{ l({uk:'часті запитання.',ru:'частые вопросы.'}) }}
+                            </em>
                         </h2>
-
-                        <p class="lead-copy">
-                            {{ t('faqDescription') }}
-                        </p>
                     </div>
 
                     <div class="faq-list">
-
-                        @for (faq of faqItems; track $index; let i = $index) {
+                        @for (faq of faqItems; track $index) {
                             <details class="faq-item">
-
                                 <summary>
-                  <span class="faq-index">
-                    0{{ i + 1 }}
-                  </span>
-
-                                    <span class="faq-question">
-                    {{ l(faq.question) }}
-                  </span>
-
-                                    <span class="faq-toggle">
-                    <i class="bi bi-plus-lg"></i>
-                  </span>
+                                    <span>{{ l(faq.question) }}</span>
+                                    <i class="bi bi-plus-lg"></i>
                                 </summary>
 
-                                <div class="faq-answer">
-                                    <p>{{ l(faq.answer) }}</p>
-                                </div>
-
+                                <p>{{ l(faq.answer) }}</p>
                             </details>
                         }
-
                     </div>
 
                 </div>
             </section>
 
 
-            <!-- CONTACT PREVIEW -->
+            <!-- HOME EMAIL FORM -->
 
             <section class="section">
                 <div class="container contact-layout">
 
                     <div>
-                        <span class="section-label">09 / CONTACT</span>
+            <span class="section-label">
+              09 / NEWGEN CONTACT
+            </span>
 
                         <h2>
-                            {{ t('consultationTitle') }}
-                            <em>{{ t('consultationGold') }}</em>
+                            {{ l({uk:'Маєш запитання?',ru:'Есть вопросы?'}) }}
+                            <em>
+                                {{ l({uk:'Почни з консультації.',ru:'Начни с консультации.'}) }}
+                            </em>
                         </h2>
 
                         <p class="lead-copy">
-                            {{ t('consultationDescription') }}
+                            {{ l({
+                            uk:'Розкажи про свої плани щодо навчання у Словаччині, і ми допоможемо визначитися з наступними кроками.',
+                            ru:'Расскажи о своих планах обучения в Словакии, и мы поможем определиться со следующими шагами.'
+                        }) }}
                         </p>
                     </div>
 
-                    <div class="contact-form">
-                        <h3>{{ t('consultationTitle') }}</h3>
-
-                        <input
-                                [placeholder]="t('name')"
-                                [attr.aria-label]="t('name')"
-                                disabled>
-
-                        <input
-                                [placeholder]="t('phone')"
-                                [attr.aria-label]="t('phone')"
-                                disabled>
-
-                        <input placeholder="Email" aria-label="Email" disabled>
-
-                        <button
-                                type="button"
-                                class="button button-gold"
-                                disabled>
-                            {{ t('send') }}
-                        </button>
-                    </div>
+                    <app-lead-form
+                            source="home"
+                            [language]="language">
+                    </app-lead-form>
 
                 </div>
             </section>
+
         }
 
 
-        <!-- =================================
-             ABOUT
-        ================================= -->
+        <!-- ABOUT -->
 
         @case ('about') {
 
@@ -535,14 +515,27 @@
             </span>
 
                         <h2>
-                            {{ t('aboutTitle') }}
-                            <em>{{ t('aboutGold') }}</em>
+                            {{ l({uk:'Навчання за кордоном',ru:'Обучение за границей'}) }}
+                            <em>
+                                {{ l({uk:'починається з вибору.',ru:'начинается с выбора.'}) }}
+                            </em>
                         </h2>
                     </div>
 
                     <div class="large-description">
-                        <p>{{ t('aboutDescription1') }}</p>
-                        <p>{{ t('aboutDescription2') }}</p>
+                        <p>
+                            {{ l({
+                            uk:'NewGen Study — компанія, яка допомагає абітурієнтам вступати до університетів Словаччини.',
+                            ru:'NewGen Study — компания, которая помогает абитуриентам поступать в университеты Словакии.'
+                        }) }}
+                        </p>
+
+                        <p>
+                            {{ l({
+                            uk:'Допомога охоплює підбір університету, переклад і підготовку документів, подачу заявок та комунікацію з навчальними закладами.',
+                            ru:'Помощь включает подбор университета, перевод и подготовку документов, подачу заявок и общение с учебными заведениями.'
+                        }) }}
+                        </p>
                     </div>
 
                 </div>
@@ -556,14 +549,14 @@
           </span>
 
                     <h2>
-                        {{ t('whyTitle') }}
-                        <em>{{ t('whyGold') }}</em>
+                        {{ l({uk:'Чому варто обрати',ru:'Почему стоит выбрать'}) }}
+                        <em>NewGen Study?</em>
                     </h2>
 
                     <div class="trust-grid">
-
                         @for (reason of trustReasons; track $index; let i = $index) {
                             <article class="trust-card">
+
                                 <span class="trust-number">0{{ i + 1 }}</span>
 
                                 <div>
@@ -571,12 +564,9 @@
                                     <p>{{ l(reason.description) }}</p>
                                 </div>
 
-                                <span class="trust-check">
-                  <i class="bi bi-check-lg"></i>
-                </span>
+                                <i class="bi bi-check-circle trust-check"></i>
                             </article>
                         }
-
                     </div>
 
                 </div>
@@ -590,44 +580,42 @@
           </span>
 
                     <h2>
-                        {{ t('stepsTitle') }}
-                        <em>{{ t('stepsGold') }}</em>
+                        {{ l({uk:'Наш супровід',ru:'Наше сопровождение'}) }}
+                        <em>{{ l({uk:'крок за кроком.',ru:'шаг за шагом.'}) }}</em>
                     </h2>
 
                     <div class="steps-grid">
-
                         @for (step of steps; track $index; let i = $index) {
                             <article class="step-card">
                                 <span class="card-number">0{{ i + 1 }}</span>
-                                <h3>{{ l(step.title) }}</h3>
-                                <p>{{ l(step.description) }}</p>
+                                <h3>{{ l(step) }}</h3>
                             </article>
                         }
-
                     </div>
 
                 </div>
             </section>
+
         }
 
 
-        <!-- =================================
-             UNIVERSITIES
-        ================================= -->
+        <!-- UNIVERSITIES -->
 
         @case ('universities') {
 
             <section class="section">
                 <div class="container">
 
-          <span class="section-label">
-            01 / NEWGEN CATALOG
-          </span>
+                    <div class="section-heading">
+            <span class="section-label">
+              01 / NEWGEN CATALOG
+            </span>
 
-                    <h2 class="section-heading">
-                        {{ t('universitiesTitle') }}
-                        <em>{{ t('universitiesGold') }}</em>
-                    </h2>
+                        <h2>
+                            {{ l({uk:'Університети',ru:'Университеты'}) }}
+                            <em>{{ l({uk:'Словаччини.',ru:'Словакии.'}) }}</em>
+                        </h2>
+                    </div>
 
                     <div class="university-search-wrapper">
 
@@ -636,14 +624,20 @@
 
                             <input
                                     type="search"
-                                    [placeholder]="t('universitySearchPlaceholder')"
-                                    [attr.aria-label]="t('universitySearchPlaceholder')"
+                                    [placeholder]="l({
+                  uk:'Пошук за містом або назвою університету...',
+                  ru:'Поиск по городу или названию университета...'
+                })"
+                                    [attr.aria-label]="l({
+                  uk:'Пошук університетів',
+                  ru:'Поиск университетов'
+                })"
                                     [value]="universitySearch"
                                     (input)="universitySearch = $any($event.target).value">
                         </div>
 
-                        <span class="university-search-count">
-              {{ t('found') }}:
+                        <span class="search-count">
+              {{ l({uk:'Знайдено',ru:'Найдено'}) }}:
                             {{ filteredUniversities.length }}
             </span>
 
@@ -669,8 +663,9 @@
 
                                     <h3>{{ uni.name }}</h3>
 
-                                    <p>{{ t('universityCaption') }}</p>
-
+                                    <p>
+                                        {{ l({uk:'Університет Словаччини',ru:'Университет Словакии'}) }}
+                                    </p>
                                 </div>
 
                             </article>
@@ -679,15 +674,16 @@
                     </div>
 
                     @if (filteredUniversities.length === 0) {
-                        <div class="no-results">
-                            <i class="bi bi-search"></i>
-                            <p>{{ t('noResults') }}</p>
-                        </div>
+                        <p class="no-results">
+                            {{ l({
+                            uk:'За твоїм запитом університетів не знайдено.',
+                            ru:'По твоему запросу университеты не найдены.'
+                        }) }}
+                        </p>
                     }
 
                 </div>
             </section>
-
 
             <section class="section">
                 <div class="container">
@@ -696,86 +692,60 @@
             02 / NEWGEN DIRECTIONS
           </span>
 
-                    <h2>{{ t('directions') }}</h2>
+                    <h2>
+                        {{ l({uk:'Напрями навчання',ru:'Направления обучения'}) }}
+                    </h2>
 
                     <div class="directions-grid">
-
-                        @for (direction of studyDirections; track $index) {
-                            <div class="direction-card">
-                                {{ l(direction) }}
-                            </div>
+                        @for (direction of studyDirections; track direction.value) {
+                            <article class="direction-card">
+                                {{ l(direction.title) }}
+                            </article>
                         }
+                    </div>
 
+                    <div class="section-action">
+                        <button
+                                type="button"
+                                class="button button-gold"
+                                (click)="changeTab('quiz')">
+                            {{ l({uk:'Отримати підбір',ru:'Получить подбор'}) }}
+                        </button>
                     </div>
 
                 </div>
             </section>
 
-
-            <section class="section">
-                <div class="container call-to-action">
-
-                    <h2>
-                        {{ l(pageHeaders.universities.title) }}
-                        <em>{{ l(pageHeaders.universities.accent) }}</em>
-                    </h2>
-
-                    <button
-                            type="button"
-                            class="button button-gold"
-                            (click)="changeTab('quiz')">
-                        {{ l(tabs[3].name) }}
-                    </button>
-
-                </div>
-            </section>
         }
 
 
-        <!-- =================================
-             QUIZ
-        ================================= -->
+        <!-- QUIZ -->
 
         @case ('quiz') {
 
-            <section class="section">
-                <div class="container quiz-form">
+            @if (!quizHasResults) {
 
-                    @for (question of quizQuestions; track question.id; let i = $index) {
-                        <section class="quiz-question-block">
+                <section class="section">
+                    <div class="container quiz-form">
 
-                            <div class="quiz-question-heading">
-                <span class="quiz-question-number">
-                  0{{ i + 1 }}
-                </span>
+                        @for (
+                            question of quizQuestions;
+                            track question.id;
+                            let i = $index
+                                ) {
+                            <article class="quiz-question-block">
 
-                                <h3>{{ l(question.title) }}</h3>
-                            </div>
+                                <div class="quiz-question-heading">
+                  <span class="quiz-question-number">
+                    0{{ i + 1 }}
+                  </span>
 
-                            @if (question.id === 'city') {
-                                <div class="city-search-wrapper">
-
-                                    <div class="city-search-field">
-                                        <i class="bi bi-search"></i>
-
-                                        <input
-                                                type="text"
-                                                list="slovak-cities"
-                                                autocomplete="off"
-                                                [placeholder]="t('cityPlaceholder')"
-                                                [value]="quizAnswers['city'] || ''"
-                                                (input)="updateQuizCity($any($event.target).value)">
-                                    </div>
-
-                                    <datalist id="slovak-cities">
-                                        @for (city of slovakCities; track city.uk) {
-                                            <option [value]="l(city)"></option>
-                                        }
-                                    </datalist>
-
+                                    <h3>{{ l(question.title) }}</h3>
                                 </div>
-                            } @else {
-                                <div class="quiz-answer-grid">
+
+                                <div
+                                        class="quiz-answer-grid"
+                                        [class.city-answer-grid]="question.id === 'city'">
 
                                     @for (option of question.options; track option.value) {
                                         <button
@@ -792,37 +762,192 @@
                                     }
 
                                 </div>
+
+                                @if (
+                                    question.id === 'specialty' &&
+                                    quizAnswers['specialty'] === 'other'
+                                        ) {
+                                    <input
+                                            class="quiz-other-input"
+                                            type="text"
+                                            maxlength="120"
+                                            [placeholder]="l({
+                      uk:'Вкажи спеціальність...',
+                      ru:'Укажи специальность...'
+                    })"
+                                            [value]="customSpecialty"
+                                            (input)="updateCustomSpecialty($any($event.target).value)">
+                                }
+
+                            </article>
+                        }
+
+                        <div class="quiz-submit-area">
+                            <button
+                                    type="button"
+                                    class="button button-gold"
+                                    (click)="submitQuiz()">
+                                {{ l({uk:'Отримати підбір',ru:'Получить подбор'}) }}
+                            </button>
+
+                            @if (quizTriedSubmit && !canSubmitQuiz) {
+                                <p class="quiz-error">
+                                    {{ l({
+                                    uk:'Заповни всі відповіді. Якщо обрано «Інше», вкажи спеціальність.',
+                                    ru:'Заполни все ответы. Если выбрано «Другое», укажи специальность.'
+                                }) }}
+                                </p>
+                            }
+                        </div>
+
+                    </div>
+                </section>
+
+            } @else {
+
+                <!-- QUIZ RESULTS -->
+
+                <section class="section">
+                    <div class="container">
+
+            <span class="section-label">
+              NEWGEN STUDY / MATCH RESULTS
+            </span>
+
+                        <h2>
+                            {{ l({uk:'Ми підібрали',ru:'Мы подобрали'}) }}
+                            <em>{{ l({uk:'університети.',ru:'университеты.'}) }}</em>
+                        </h2>
+
+                        <p class="lead-copy result-intro">
+                            {{ l(matchDescription) }}
+                        </p>
+
+                        <div class="universities-grid">
+
+                            @for (uni of matchedUniversities; track uni.name) {
+                                <article class="university-card">
+
+                                    <img
+                                            class="university-image"
+                                            [src]="uni.image"
+                                            [alt]="uni.name"
+                                            loading="lazy">
+
+                                    <div class="university-info">
+
+                    <span class="city-label">
+                      <i class="bi bi-geo-alt"></i>
+                        {{ l(uni.city) }}
+                    </span>
+
+                                        <h3>{{ uni.name }}</h3>
+
+                                        <p class="university-focus">
+                                            <strong>
+                                                {{ l({uk:'Можливі напрями:',ru:'Возможные направления:'}) }}
+                                            </strong>
+                                            {{ l(uni.focus) }}
+                                        </p>
+                                    </div>
+
+                                </article>
                             }
 
-                        </section>
-                    }
+                        </div>
 
-                    <div class="quiz-submit-area">
+                        <p class="quiz-disclaimer">
+                            {{ l({
+                            uk:'Це попередній підбір за містом і напрямом. Мовні вимоги, іспити й доступність програм потрібно уточнити в університеті.',
+                            ru:'Это предварительный подбор по городу и направлению. Языковые требования, экзамены и доступность программ необходимо уточнить в университете.'
+                        }) }}
+                        </p>
+
                         <button
                                 type="button"
-                                class="button button-gold"
-                                disabled>
-                            {{ t('getMatching') }}
+                                class="button button-outline"
+                                (click)="editQuiz()">
+                            {{ l({uk:'Змінити відповіді',ru:'Изменить ответы'}) }}
                         </button>
-                    </div>
 
-                </div>
-            </section>
+
+                        <!-- MANAGER -->
+
+                        <div class="quiz-manager-panel">
+
+                            <div>
+                                <h3>
+                                    {{ l({uk:'Не підійшов підбір?',ru:'Не подошёл подбор?'}) }}
+                                </h3>
+
+                                <p>
+                                    {{ l({
+                                    uk:'Напиши менеджеру, і ми допоможемо знайти інші варіанти.',
+                                    ru:'Напиши менеджеру, и мы поможем найти другие варианты.'
+                                }) }}
+                                </p>
+                            </div>
+
+                            <button
+                                    type="button"
+                                    class="button button-gold"
+                                    (click)="contactManager()">
+                                {{ l({uk:'Написати менеджеру',ru:'Написать менеджеру'}) }}
+                            </button>
+
+                        </div>
+
+
+                        <!-- EMAIL FORM AFTER QUIZ -->
+
+                        <div class="quiz-lead-section">
+
+                            <div class="section-heading">
+                <span class="section-label">
+                  NEWGEN STUDY / APPLICATION
+                </span>
+
+                                <h2>
+                                    {{ l({uk:'Отримай допомогу',ru:'Получи помощь'}) }}
+                                    <em>
+                                        {{ l({
+                                        uk:'з вибором університету.',
+                                        ru:'с выбором университета.'
+                                    }) }}
+                                    </em>
+                                </h2>
+                            </div>
+
+                            <app-lead-form
+                                    source="quiz"
+                                    [language]="language"
+                                    [quizDetails]="managerRequest">
+                            </app-lead-form>
+
+                        </div>
+
+                    </div>
+                </section>
+
+            }
+
         }
 
 
-        <!-- =================================
-             PRICING
-        ================================= -->
+        <!-- PRICING -->
 
         @case ('pricing') {
 
             <section class="section">
                 <div class="container">
 
-                    <div class="pricing-grid full-pricing">
+                    <div class="pricing-grid">
 
-                        @for (pack of packages; track pack.price; let pi = $index) {
+                        @for (
+                            pack of packages;
+                            track pack.price;
+                            let pi = $index
+                                ) {
                             <article
                                     class="price-card"
                                     [class.featured]="pack.featured">
@@ -838,45 +963,39 @@
                                 </div>
 
                                 <p class="price-description">
-                                    {{ t(
-                                    pack.applications === 1
-                                        ? 'applicationsOne'
-                                        : 'applicationsTwo'
-                                ) }}
+                                    {{ l({
+                                    uk:'Оплата заявок до університетів:',
+                                    ru:'Оплата заявок в университеты:'
+                                }) }}
+                                    {{ pack.applications }}
                                 </p>
 
                                 <div class="price-divider"></div>
 
                                 <ul class="service-list">
-
                                     @for (service of services; track $index; let si = $index) {
+
                                         <li
                                                 [class.service-not-included]="!hasService(si, pi)">
 
-                      <span
-                              class="service-icon"
-                              [class.included-icon]="hasService(si, pi)"
-                              [class.excluded-icon]="!hasService(si, pi)"
-                              aria-hidden="true">
-
-                        @if (hasService(si, pi)) {
-                            <i class="bi bi-check-lg"></i>
-                        } @else {
-                            <i class="bi bi-x-lg"></i>
-                        }
-
-                      </span>
+                                            @if (hasService(si, pi)) {
+                                                <i class="bi bi-check-lg included-icon"></i>
+                                            } @else {
+                                                <i class="bi bi-x-lg excluded-icon"></i>
+                                            }
 
                                             <span>{{ l(service) }}</span>
 
                                         </li>
                                     }
-
                                 </ul>
 
-                                <span class="price-button price-button-static">
-                  {{ t('choosePackage') }}
-                </span>
+                                <button
+                                        type="button"
+                                        class="price-button"
+                                        (click)="selectPackage(pack)">
+                                    {{ l({uk:'Обрати пакет',ru:'Выбрать пакет'}) }}
+                                </button>
 
                             </article>
                         }
@@ -885,12 +1004,11 @@
 
                 </div>
             </section>
+
         }
 
 
-        <!-- =================================
-             REVIEWS / STORIES
-        ================================= -->
+        <!-- REVIEWS -->
 
         @case ('reviews') {
 
@@ -898,13 +1016,12 @@
                 <div class="container reviews-layout">
 
                     <div class="stories-area">
-
                         <div class="stories-carousel">
 
                             <button
                                     type="button"
                                     class="story-side-arrow"
-                                    [attr.aria-label]="t('previous')"
+                                    [attr.aria-label]="l({uk:'Попередній відгук',ru:'Предыдущий отзыв'})"
                                     (click)="previousReview()">
                                 <i class="bi bi-chevron-left"></i>
                             </button>
@@ -913,8 +1030,6 @@
                             <div
                                     class="story-card"
                                     tabindex="0"
-                                    role="group"
-                                    [attr.aria-label]="t('storyTitle')"
                                     [class.story-is-held]="isStoryHeld"
                                     [class.story-is-paused]="isReviewPaused"
                                     (pointerdown)="onStoryPointerDown($event)"
@@ -927,22 +1042,18 @@
                                 <!-- PROGRESS -->
 
                                 <div class="story-progress">
-
                                     @for (review of reviews; track $index; let i = $index) {
                                         <button
                                                 type="button"
                                                 class="story-progress-item"
-                                                [attr.aria-label]="(i + 1) + ' / ' + reviews.length"
+                                                [attr.aria-label]="(i + 1) + '/' + reviews.length"
                                                 (click)="showReview(i)">
-
                       <span
                               class="story-progress-fill"
                               [style.width.%]="storyProgress(i)">
                       </span>
-
                                         </button>
                                     }
-
                                 </div>
 
 
@@ -950,27 +1061,21 @@
 
                                 <div class="story-topline">
 
-                                    <div class="story-avatar">
-                                        NG
-                                    </div>
+                                    <div class="story-avatar">NG</div>
 
                                     <div class="story-author">
                                         <strong>{{ l(activeReview.name) }}</strong>
-                                        <span>{{ l(activeReview.university) }}</span>
+                                        <span>{{ activeReview.university }}</span>
                                     </div>
 
-                                    <div class="story-header-icons">
-                                        <i
-                                                [class]="storyIsStopped
-                        ? 'bi bi-pause-fill'
-                        : 'bi bi-play-fill'">
-                                        </i>
-                                    </div>
+                                    <span class="story-counter">
+                    {{ reviewIndex + 1 }} / {{ reviews.length }}
+                  </span>
 
                                 </div>
 
 
-                                <!-- SCROLLABLE REVIEW -->
+                                <!-- TEXT -->
 
                                 <div class="story-body" #storyScrollable>
 
@@ -989,25 +1094,16 @@
                                 </div>
 
 
-                                <!-- FOOTER OF STORY -->
+                                <!-- BOTTOM -->
 
                                 <div class="story-bottom">
-                  <span class="story-bottom-brand">
-                    NG · NEWGEN STUDY AGENCY
-                  </span>
-
-                                    <span class="story-counter">
-                    {{ reviewIndex + 1 }} / {{ reviews.length }}
-                  </span>
+                                    <span>NG · NEWGEN STUDY AGENCY</span>
                                 </div>
-
-
-                                <!-- HOLD STATE -->
 
                                 @if (storyIsStopped) {
                                     <div class="story-status">
                                         <i class="bi bi-pause-fill"></i>
-                                        {{ t('storyPaused') }}
+                                        {{ l({uk:'Призупинено',ru:'Приостановлено'}) }}
                                     </div>
                                 }
 
@@ -1017,7 +1113,7 @@
                             <button
                                     type="button"
                                     class="story-side-arrow"
-                                    [attr.aria-label]="t('next')"
+                                    [attr.aria-label]="l({uk:'Наступний відгук',ru:'Следующий отзыв'})"
                                     (click)="nextReview()">
                                 <i class="bi bi-chevron-right"></i>
                             </button>
@@ -1025,7 +1121,7 @@
                         </div>
 
 
-                        <!-- PLAYBACK CONTROLS -->
+                        <!-- PLAYBACK -->
 
                         <div class="story-toolbar">
 
@@ -1036,24 +1132,26 @@
                 </span>
 
                                 {{ storyIsStopped
-                                ? t('storyPaused')
-                                : t('storyPlaying') }}
+                                ? l({uk:'Призупинено',ru:'Приостановлено'})
+                                : l({uk:'Автоматичне відтворення',ru:'Автоматическое воспроизведение'})
+                                }}
                             </div>
 
                             <button
                                     type="button"
                                     class="story-pause-button"
-                                    [attr.aria-pressed]="isReviewPaused"
                                     (click)="toggleReviewPlayback()">
 
-                                @if (isReviewPaused) {
-                                    <i class="bi bi-play-fill"></i>
-                                    {{ t('continue') }}
-                                } @else {
-                                    <i class="bi bi-pause-fill"></i>
-                                    {{ t('pause') }}
-                                }
+                                <i
+                                        [class]="isReviewPaused
+                    ? 'bi bi-play-fill'
+                    : 'bi bi-pause-fill'">
+                                </i>
 
+                                {{ isReviewPaused
+                                ? l({uk:'Продовжити',ru:'Продолжить'})
+                                : l({uk:'Пауза',ru:'Пауза'})
+                                }}
                             </button>
 
                         </div>
@@ -1062,12 +1160,11 @@
 
                 </div>
             </section>
+
         }
 
 
-        <!-- =================================
-             CONTACT
-        ================================= -->
+        <!-- CONTACT -->
 
         @case ('contact') {
 
@@ -1080,69 +1177,43 @@
             </span>
 
                         <h2>
-                            {{ t('consultationTitle') }}
-                            <em>{{ t('consultationGold') }}</em>
+                            {{ l({uk:'Маєш запитання?',ru:'Есть вопросы?'}) }}
+                            <em>
+                                {{ l({
+                                uk:'Почни з консультації.',
+                                ru:'Начни с консультации.'
+                            }) }}
+                            </em>
                         </h2>
 
                         <p class="lead-copy">
-                            {{ t('consultationDescription') }}
+                            {{ l({
+                            uk:'Заповни форму, і менеджер NewGen Study зв’яжеться з тобою.',
+                            ru:'Заполни форму, и менеджер NewGen Study свяжется с тобой.'
+                        }) }}
                         </p>
                     </div>
 
-                    <div class="contact-form">
-
-                        <h3>{{ t('consultationTitle') }}</h3>
-
-                        <label for="contact-name">{{ t('name') }}</label>
-                        <input
-                                id="contact-name"
-                                [placeholder]="t('name')"
-                                disabled>
-
-                        <label for="contact-phone">{{ t('phone') }}</label>
-                        <input
-                                id="contact-phone"
-                                placeholder="+380..."
-                                disabled>
-
-                        <label for="contact-email">Email</label>
-                        <input
-                                id="contact-email"
-                                type="email"
-                                placeholder="email@example.com"
-                                disabled>
-
-                        <label for="contact-service">{{ t('service') }}</label>
-                        <select id="contact-service" disabled>
-
-                            <option>{{ l(tabs[3].name) }}</option>
-
-                            @for (pack of packages; track pack.price) {
-                                <option>{{ l(pack.name) }}</option>
-                            }
-
-                        </select>
-
-                        <button
-                                type="button"
-                                class="button button-gold"
-                                disabled>
-                            {{ t('send') }}
-                        </button>
-
-                    </div>
+                    <app-lead-form
+                            source="contact"
+                            [language]="language"
+                            [packageName]="selectedPackageName"
+                            [quizDetails]="managerRequestVisible ? managerRequest : ''">
+                    </app-lead-form>
 
                 </div>
             </section>
+
         }
 
     }
+
 </main>
 
 
-<!-- =====================================
+<!-- ======================================
      FOOTER
-===================================== -->
+====================================== -->
 
 <footer class="site-footer">
     <div class="container footer-main">
@@ -1153,39 +1224,74 @@
                     src="assets/logo.png"
                     alt="NewGen Study Agency">
 
-            <div class="footer-description">
+            <div>
                 <h3>NewGen Study Agency</h3>
-                <p>{{ t('footerText') }}</p>
-                <span>{{ t('footerServices') }}</span>
-            </div>
 
+                <p>
+                    {{ l({
+                    uk:'Допомога абітурієнтам зі вступом до університетів Словаччини.',
+                    ru:'Помощь абитуриентам с поступлением в университеты Словакии.'
+                }) }}
+                </p>
+
+                <span class="footer-note">
+          {{ l({
+                    uk:'Підбір університету · Документи · Супровід',
+                    ru:'Подбор университета · Документы · Сопровождение'
+                }) }}
+        </span>
+            </div>
         </div>
+
 
         <div class="footer-contacts">
 
-            <h3>{{ t('contactUs') }}</h3>
+            <h3>
+                {{ l({uk:'Зв’язатися з нами',ru:'Связаться с нами'}) }}
+            </h3>
 
             <div class="footer-socials">
 
-        <span class="social-link" aria-label="Телефон">
-          <i class="bi bi-telephone-fill"></i>
-        </span>
+                <a
+                        class="social-link"
+                        href="tel:+380XXXXXXXXX"
+                        aria-label="Телефон">
+                    <i class="bi bi-telephone-fill"></i>
+                </a>
 
-                <span class="social-link" aria-label="Email">
-          <i class="bi bi-envelope-fill"></i>
-        </span>
+                <a
+                        class="social-link"
+                        href="mailto:newgenstudy.slovakia@gmail.com"
+                        aria-label="Email">
+                    <i class="bi bi-envelope-fill"></i>
+                </a>
 
-                <span class="social-link" aria-label="Instagram">
-          <i class="bi bi-instagram"></i>
-        </span>
+                <a
+                        class="social-link"
+                        href="https://www.instagram.com/new_gen_study?exln=NXV5dHNoOWRyZW1m&utm_source=qr"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Instagram">
+                    <i class="bi bi-instagram"></i>
+                </a>
 
-                <span class="social-link" aria-label="TikTok">
-          <i class="bi bi-tiktok"></i>
-        </span>
+                <a
+                        class="social-link"
+                        href="https://www.tiktok.com/@newgenstudy7?_r=1&_t=ZN-9AqscuV85WI"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="TikTok">
+                    <i class="bi bi-tiktok"></i>
+                </a>
 
-                <span class="social-link" aria-label="Telegram">
-          <i class="bi bi-telegram"></i>
-        </span>
+                <a
+                        class="social-link"
+                        href="https://t.me/Newgenstudy_bot"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Telegram">
+                    <i class="bi bi-telegram"></i>
+                </a>
 
             </div>
 
@@ -1194,12 +1300,13 @@
     </div>
 
     <div class="container footer-bottom">
+
     <span>
       © 2026 NewGen Study Agency.
-        {{ t('rights') }}
+        {{ l({uk:'Усі права захищені.',ru:'Все права защищены.'}) }}
     </span>
 
         <span>NEWGEN STUDY · SLOVAKIA</span>
-    </div>
 
+    </div>
 </footer>
